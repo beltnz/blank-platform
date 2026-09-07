@@ -9,6 +9,9 @@ Desktop.ini
 *.swp
 *.swo
 
+# Releases
+release/
+
 # Logs and temporary files
 *.log
 *.tmp
