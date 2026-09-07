@@ -1,0 +1,121 @@
+{
+  "blank_version": "0.02.0",
+  "configurator_version": "0.9.0",
+  "generated_at_utc": "2026-09-06T23:41:25.081574+00:00",
+  "canonical_documents": [
+    "00_BLANK_PLATFORM_MANIFESTO.md",
+    "01_CANONICAL_PLATFORM_ARCHITECTURE.md",
+    "02_AI_DEVELOPMENT_CONSTITUTION.md",
+    "03_PLATFORM_CAPABILITY_CONTRACTS.md",
+    "04_PLATFORM_SECURITY_MODEL.md",
+    "05_BLANK_PLATFORM_DEFINITION_OF_DONE.md",
+    "06_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION_TEMPLATE.md",
+    "06A_TECHNOLOGY_IMPLEMENTATION_RECIPE.md",
+    "07_DEVELOPMENT_TEST_DATA_AND_VERIFICATION_MODEL.md",
+    "08_AI_ENGINEERING_OPERATING_MODEL.md"
+  ],
+  "files": [
+    {
+      "name": "00_BLANK_PLATFORM_MANIFESTO.md",
+      "bytes": 6211,
+      "sha256": "414d8e9708faae18f268a8be397d53541d83ff7867e430566c09a9a809676eaf",
+      "words": 815
+    },
+    {
+      "name": "01_CANONICAL_PLATFORM_ARCHITECTURE.md",
+      "bytes": 11361,
+      "sha256": "536abc2f664eb1774a7a2533809d957fa59435a926edf886b87ff62e10a15518",
+      "words": 1428
+    },
+    {
+      "name": "02_AI_DEVELOPMENT_CONSTITUTION.md",
+      "bytes": 7766,
+      "sha256": "fe12984be12e7c822e547f563c6d9a8eda2fbf0b17b4324d2cb377422bced67b",
+      "words": 1004
+    },
+    {
+      "name": "03_PLATFORM_CAPABILITY_CONTRACTS.md",
+      "bytes": 15171,
+      "sha256": "d7bda1826485cac0712ca5fa46860daaff3304652fdab4f983c15138a95de7f5",
+      "words": 1783
+    },
+    {
+      "name": "04_PLATFORM_SECURITY_MODEL.md",
+      "bytes": 11421,
+      "sha256": "6855e7cb840fe8a18872ddca0f809287e4b80bf0178987a5b13275b82cd3a6d9",
+      "words": 1403
+    },
+    {
+      "name": "05_BLANK_PLATFORM_DEFINITION_OF_DONE.md",
+      "bytes": 12121,
+      "sha256": "3b8bf18fdaae8dc24fdc4738098ddf53a4bce809c1c3c7a49862368ceda20937",
+      "words": 1551
+    },
+    {
+      "name": "06A_TECHNOLOGY_IMPLEMENTATION_RECIPE.md",
+      "bytes": 6891,
+      "sha256": "bd70d48241a3c17fff13b5a5d2132946c179b1551b3cc7af4f7a3e745ea47606",
+      "words": 807
+    },
+    {
+      "name": "06_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION_TEMPLATE.md",
+      "bytes": 17666,
+      "sha256": "d20f353f5e7e2099936b5d4ad85d7afd5fedcac2d545c07ebb8f4f8e234793f2",
+      "words": 2139
+    },
+    {
+      "name": "07_DEVELOPMENT_TEST_DATA_AND_VERIFICATION_MODEL.md",
+      "bytes": 9040,
+      "sha256": "d2577e5248ab800d79fa3f42969e4e118ae4820649019523c5f47cd46087927b",
+      "words": 1110
+    },
+    {
+      "name": "08_AI_ENGINEERING_OPERATING_MODEL.md",
+      "bytes": 3669,
+      "sha256": "e3438e2450287466c6b6506fd9e49ab6074c8ecfeb32b6b7eb1cfee5ca911d29",
+      "words": 488
+    },
+    {
+      "name": "AGENTS.md",
+      "bytes": 2746,
+      "sha256": "08def90534f51b750e2c417a58344678b73d470011514e4524d55537b9e37e26",
+      "words": 321
+    },
+    {
+      "name": "AGENT_CONTEXT_MAP.yaml",
+      "bytes": 3089,
+      "sha256": "bafd38b0f149218a7e250b0aec3350d319814ab0388b75a9791081d265377b25",
+      "words": 179
+    },
+    {
+      "name": "AI_COST_AND_PRACTICALITY_REVIEW.md",
+      "bytes": 1398,
+      "sha256": "cab2409ee5cfd50dfa386fc5e48fea08b6bf26b9cc97727f002f9c3cb1d70f20",
+      "words": 185
+    },
+    {
+      "name": "DEPLOYMENT_LAYOUT.md",
+      "bytes": 1784,
+      "sha256": "d7cb5abda4288d9ebf881962c8b4e25afb025cf8c6ea0b7bc481a34afceeede5",
+      "words": 130
+    },
+    {
+      "name": "MAJOR_UPDATE_REVIEW_REPORT.md",
+      "bytes": 3113,
+      "sha256": "87d9e6a26c89717f5b82a725ef7139c4d45a8bd5e0f87a541d4ec355397d9ed3",
+      "words": 378
+    },
+    {
+      "name": "README.md",
+      "bytes": 949,
+      "sha256": "47382c21d59266df0eb9ea734755fc14831fc16c7396770180b696405b9420f9",
+      "words": 121
+    },
+    {
+      "name": "TOOLBOX_GAP_DECISION_TEMPLATE.md",
+      "bytes": 954,
+      "sha256": "fc1ac07386720f24a6dfb53d574b0ec5fc7b4f79067045d2ef3a6629d9287c43",
+      "words": 125
+    }
+  ]
+}

@@ -1,0 +1,2971 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Blank Platform — Technology Configurator</title>
+<style>
+:root{
+  --bg:#17191d; --panel:#202329; --panel2:#262a31; --panel3:#2d323a;
+  --text:#e3e7ec; --muted:#aab2bd; --soft:#c8ced6; --line:#3a414b;
+  --accent:#86a9d8; --accent2:#a8c5e8; --good:#9cc7ae; --warn:#d8bc83;
+  --danger:#d49b9b; --focus:#bed7f5; --shadow:rgba(0,0,0,.22);
+  --max:1120px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+a{color:var(--accent2)}
+.shell{max-width:var(--max);margin:auto;padding:22px}
+header{
+  display:flex;gap:18px;justify-content:space-between;align-items:flex-start;
+  padding:10px 0 18px;border-bottom:1px solid var(--line);margin-bottom:18px
+}
+h1{font-size:clamp(1.55rem,3vw,2.15rem);line-height:1.15;margin:0 0 7px}
+h2{font-size:1.18rem;margin:.2rem 0 .6rem}
+h3{font-size:1rem;margin:.2rem 0 .55rem}
+p{margin:.35rem 0 .8rem}
+.muted,.hint{color:var(--muted)}
+.small{font-size:.88rem}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px}
+button,.file-label{
+  border:1px solid var(--line);background:var(--panel2);color:var(--text);
+  border-radius:9px;padding:9px 12px;box-shadow:0 1px 1px var(--shadow)
+}
+button:hover,.file-label:hover{background:var(--panel3)}
+button.primary{background:#355475;border-color:#52759c}
+button.primary:hover{background:#3d6085}
+button.good{background:#355846;border-color:#557c68}
+button.danger{background:#604143;border-color:#80585b}
+button:disabled{opacity:.5;cursor:not-allowed}
+input[type=file]{display:none}
+.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:16px;margin:13px 0;box-shadow:0 3px 14px var(--shadow)
+}
+.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.setup-grid{grid-template-columns:1fr}.shell{padding:14px}}
+.drop{
+  border:1px dashed #58616d;border-radius:10px;padding:14px;background:#1b1e23;
+  min-height:118px
+}
+.drop.drag{border-color:var(--accent);background:#202934}
+.file-state{margin-top:9px;font-size:.9rem;color:var(--muted)}
+.statusline{
+  display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:12px 0;
+  padding:10px 12px;border-radius:9px;background:#1c1f24;border:1px solid var(--line)
+}
+.pill{
+  display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;
+  border:1px solid var(--line);background:var(--panel2);font-size:.8rem;color:var(--soft)
+}
+.pill.must{border-color:#746443;color:#e0c78e}
+.pill.optional{border-color:#4a6278;color:#a9c6e6}
+.pill.done{border-color:#4f725d;color:#afd2ba}
+.pill.todo{border-color:#66545a;color:#d5aeb7}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:18px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.side{position:static!important}}
+.side{position:sticky;top:12px;align-self:start;max-height:calc(100vh - 24px);overflow:auto}
+.side .card{margin:0}
+nav button{
+  display:block;width:100%;text-align:left;margin:4px 0;padding:7px 8px;
+  background:transparent;border-color:transparent;box-shadow:none;color:var(--muted)
+}
+nav button:hover,nav button.active{background:var(--panel2);color:var(--text);border-color:var(--line)}
+.filters{display:grid;gap:8px;margin:10px 0}
+input[type=text],input[type=search],textarea,select{
+  width:100%;border:1px solid #47505b;background:#181b20;color:var(--text);
+  border-radius:8px;padding:9px 10px;outline:none
+}
+textarea{min-height:78px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:var(--focus);box-shadow:0 0 0 2px rgba(190,215,245,.10)}
+.section-card{scroll-margin-top:12px}
+.section-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.section-number{color:var(--muted);font-variant-numeric:tabular-nums}
+.field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px 14px;margin-top:12px}
+@media(max-width:700px){.field-grid{grid-template-columns:1fr}}
+.field.full{grid-column:1/-1}
+label span{display:block;color:var(--soft);font-size:.86rem;margin-bottom:4px}
+.context{
+  margin:9px 0 0;padding:9px 11px;border-left:3px solid #475867;
+  background:#1b1e22;color:var(--muted);white-space:pre-wrap;font-size:.89rem
+}
+details{margin-top:10px}
+summary{cursor:pointer;color:var(--accent2)}
+.progress{height:7px;background:#101215;border-radius:99px;overflow:hidden}
+.progress>div{height:100%;background:#6e91bb;width:0}
+.hidden{display:none!important}
+.sep{height:1px;background:var(--line);margin:14px 0}
+.bootstrap-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px 14px}
+@media(max-width:700px){.bootstrap-grid{grid-template-columns:1fr}}
+.output-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(max-width:700px){.output-grid{grid-template-columns:1fr}}
+.output-item{
+  padding:11px;border:1px solid var(--line);border-radius:9px;background:#1b1e23
+}
+.output-item strong{display:block;margin-bottom:5px}
+.toast{
+  position:fixed;right:18px;bottom:18px;max-width:360px;background:#303640;
+  border:1px solid #56606e;border-radius:10px;padding:11px 14px;box-shadow:0 6px 24px rgba(0,0,0,.35);
+  z-index:50
+}
+kbd{border:1px solid var(--line);border-bottom-width:2px;background:#15171b;border-radius:5px;padding:1px 5px}
+code{color:#c4d6eb}
+.checkline{display:flex;align-items:flex-start;gap:8px;margin:7px 0}
+.checkline input{margin-top:4px}
+footer{color:var(--muted);font-size:.85rem;margin:24px 0 10px}
+
+.field-label-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.field-label-row span{margin:0!important}
+.help-btn{
+  width:20px;height:20px;min-width:20px;padding:0;border-radius:50%;
+  display:inline-grid;place-items:center;font-size:.76rem;font-weight:700;
+  color:var(--accent2);background:#1b2026;border:1px solid #4a5968;
+  box-shadow:none;line-height:1
+}
+.help-btn:hover{background:#26313c;border-color:#71889f}
+.suggestion-action{
+  display:inline-block;margin-top:4px;font-size:.76rem;color:#7f93a8;
+  text-decoration:none;border-bottom:1px dotted #64788c;cursor:pointer
+}
+.suggestion-action:hover{color:var(--accent2);border-bottom-color:var(--accent2)}
+.suggestion-action.hidden{display:none!important}
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(6,8,11,.72);z-index:100;
+  display:flex;align-items:flex-start;justify-content:center;padding:5vh 16px;
+  overflow:auto
+}
+.modal{
+  width:min(820px,100%);max-height:90vh;overflow:auto;
+  background:var(--panel);border:1px solid #4b5663;border-radius:14px;
+  box-shadow:0 18px 60px rgba(0,0,0,.48);padding:0
+}
+.modal-head{
+  position:sticky;top:0;z-index:2;display:flex;align-items:flex-start;
+  justify-content:space-between;gap:14px;padding:16px 18px;
+  background:var(--panel);border-bottom:1px solid var(--line)
+}
+.modal-head h2{margin:0}
+.modal-body{padding:16px 18px 22px}
+.modal-body h3{margin:1.05rem 0 .35rem;color:var(--soft)}
+.modal-body ul{margin:.35rem 0 .8rem;padding-left:1.3rem}
+.modal-body li{margin:.28rem 0}
+.modal-close{padding:6px 9px;min-width:38px}
+.suggestion-box{
+  background:#1a2026;border:1px solid #3d4e5d;border-radius:9px;padding:11px 12px;
+  margin:.45rem 0 .8rem
+}
+.resource-list a{display:inline-block;margin:.15rem .35rem .15rem 0}
+.context-chip{
+  display:inline-block;padding:2px 7px;border:1px solid var(--line);
+  border-radius:999px;color:var(--muted);font-size:.78rem;margin:2px 3px 2px 0
+}
+
+.import-ok{color:var(--good)}
+.import-warn{color:var(--warn)}
+.import-bad{color:var(--danger)}
+
+.quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}
+@media(max-width:760px){.quick-grid{grid-template-columns:1fr}}
+.quick-choice{padding:12px;border:1px solid var(--line);border-radius:10px;background:#1b1f24}
+.quick-choice label{display:block}
+.quick-choice .small{margin-top:4px}
+.mode-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.mode-tabs button.active{background:#355475;border-color:#52759c}
+.auto-badge{display:inline-flex;align-items:center;gap:5px;margin-left:6px;padding:1px 6px;border-radius:999px;
+  border:1px solid #4a5a69;color:#93abc0;font-size:.72rem;vertical-align:middle}
+.review-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:10px 0}
+@media(max-width:760px){.review-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.review-stat{padding:10px;border:1px solid var(--line);border-radius:9px;background:#1a1e23;text-align:center}
+.review-stat strong{display:block;font-size:1.2rem}
+.callout{border-left:3px solid #607d96;padding:10px 12px;background:#1a1f25;border-radius:7px}
+.section-card.review-hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="shell">
+<header>
+  <div>
+    <h1>Blank Platform — Technology Configurator</h1>
+    <div class="muted">Complete Document 06, then derive the agent-facing implementation artifacts required by 06A.</div>
+  </div>
+  <div class="toolbar">
+    <button id="themeBtn" title="Toggle light/dark">Dark</button>
+    <button id="resetBtn" class="danger" title="Clear answers">Reset answers</button>
+  </div>
+</header>
+
+<section class="card" id="sourceCard">
+  <h2>1. Point the app at your Blank framework folder</h2>
+  <p class="muted">
+    The framework copy of Document 06 is treated as a <strong>pristine template</strong>.
+    The app reads it but never writes project answers back into it.
+  </p>
+
+  <div class="drop" id="frameworkDrop">
+    <strong>Blank Framework Source Folder</strong><br>
+    <span class="small muted">Expected: 00_… through 07_… plus 06A_…</span>
+    <div class="toolbar" style="margin-top:12px">
+      <button id="chooseFrameworkFolder" class="primary">Choose framework folder</button>
+      <label class="file-label">Folder fallback
+        <input id="frameworkFolderFallback" type="file" webkitdirectory multiple>
+      </label>
+    </div>
+    <div class="file-state" id="frameworkState">No framework folder loaded</div>
+    <div class="small muted" style="margin-top:7px">Preferred Windows location: <code id="preferredFrameworkPath"></code></div>
+    <div class="small muted" id="rememberedFolderState" style="margin-top:4px"></div>
+    <div id="frameworkFiles" class="small" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card" style="margin-top:14px;background:var(--panel2)">
+    <h3>Optional: resume an existing project Document 06</h3>
+    <p class="small muted">
+      Load a previously saved <code>PROJECT_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION.partial.md</code>
+      or completed project specification. Matching answers will be imported into the questionnaire.
+      The blank framework 06 remains untouched and remains the structural template.
+    </p>
+    <div class="toolbar">
+      <label class="file-label">Load project 06 / partial
+        <input id="projectSpecFile" type="file" accept=".md,text/markdown,text/plain">
+      </label>
+      <button id="clearProjectSpec">Clear loaded project answers</button>
+    </div>
+    <div class="file-state" id="projectSpecState">No project working specification loaded</div>
+    <div id="projectImportReport" class="small muted" style="margin-top:8px"></div>
+  </div>
+
+  <div class="toolbar" style="margin-top:14px">
+    <button id="buildForm" disabled>Build questionnaire from pristine Document 06</button>
+  </div>
+
+  <details style="margin-top:12px">
+    <summary>What stays blank, and what gets edited?</summary>
+    <div class="context">The file in blank/framework/06_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION_TEMPLATE.md is your reusable clean master. Project answers live only in PROJECT_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION.partial.md while work is incomplete, and PROJECT_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION.md when you decide the project specification is ready. The app imports project answers into the blank template; it never modifies the framework file.</div>
+  </details>
+</section>
+
+
+<section class="card hidden" id="quickStartCard">
+  <h2>2. Quick Start — answer only the big decisions</h2>
+  <p class="muted">
+    These few answers drive a conservative baseline. The app fills ordinary plumbing,
+    safely defers unjustified complexity, and leaves only project-specific or high-risk decisions for you to review.
+  </p>
+  <div class="callout small">
+    <strong>Default philosophy:</strong> internet-facing, uncompromising security, mainstream Node/Next/TypeScript,
+    PostgreSQL unless there is a good reason not to, modular monolith first, managed services where they reduce risk,
+    no distributed-systems complexity without a requirement, and no new reusable primitive when an approved toolbox item already exists.
+  </div>
+  <div class="quick-grid" id="quickFields" style="margin-top:14px"></div>
+  <div class="toolbar" style="margin-top:14px">
+    <button id="applyBaseline" class="good">Apply safe baseline</button>
+    <button id="showReviewOnly" disabled>Review only exceptions</button>
+    <button id="showAllAdvanced">Show full advanced editor</button>
+  </div>
+  <div id="baselineSummary" class="hidden">
+    <div class="review-summary">
+      <div class="review-stat"><strong id="autoFilledCount">0</strong><span class="small muted">auto-filled</span></div>
+      <div class="review-stat"><strong id="deferredCount">0</strong><span class="small muted">safely deferred</span></div>
+      <div class="review-stat"><strong id="reviewCount">0</strong><span class="small muted">need review</span></div>
+      <div class="review-stat"><strong id="manualCount">0</strong><span class="small muted">human/imported</span></div>
+    </div>
+    <div class="small muted">Generated defaults remain editable and are tagged. Existing human/project answers are never overwritten. A missing reusable tool is never auto-generated: it is a user-reviewed Toolbox Gap.</div>
+  </div>
+</section>
+
+<div id="work" class="hidden">
+  <div class="statusline">
+    <span id="questionCount"></span>
+    <span id="answeredCount"></span>
+    <span id="mandatoryCount"></span>
+    <span style="flex:1;min-width:120px"><span class="progress"><div id="progressBar"></div></span></span>
+    <button id="saveLocal">Save locally</button>
+    <button id="restoreLocal">Restore local</button>
+  </div>
+
+  <div class="layout">
+    <aside class="side">
+      <div class="card">
+        <h3>Navigate</h3>
+        <div class="filters">
+          <input id="search" type="search" placeholder="Search decisions…">
+          <select id="filter">
+            <option value="all">All decisions</option>
+            <option value="mandatory">Mandatory</option>
+            <option value="conditional">Conditional</option>
+            <option value="optional">Optional / desirable</option>
+            <option value="incomplete">Incomplete</option>
+          </select>
+        </div>
+        <nav id="nav"></nav>
+      </div>
+    </aside>
+
+    <main>
+      <section class="card">
+        <h2>3. Review technology decisions</h2>
+        <div class="mode-tabs">
+          <button id="reviewModeBtn" class="active">Review exceptions only</button>
+          <button id="advancedModeBtn">Advanced: show everything</button>
+        </div>
+        <p class="muted">Normal use shows only decisions that remain human-sensitive, low-confidence, or incomplete. The full Document 06 editor remains available.</p>
+        <details>
+          <summary>How completion is measured</summary>
+          <div class="context">A decision section is considered answered when at least one substantive field has a value. This is a navigation aid, not a replacement for the Definition of Done. “DEFERRED” and “NOT APPLICABLE” are valid deliberate decisions where Document 06 permits them.</div>
+        </details>
+      </section>
+      <div id="questions"></div>
+
+      <section class="card" id="bootstrapCard">
+        <h2>3. Platform-bootstrap details required by 06A</h2>
+        <p class="muted">These are technology-specific but domain-independent. They are appended to the completed Document 06 so no generated artifact depends on hidden browser state.</p>
+        <div class="bootstrap-grid" id="bootstrapFields"></div>
+      </section>
+
+      <section class="card">
+        <h2>4. Generate the completed specification and derived artifacts</h2>
+        <p>The completed Document 06 remains authoritative. All other outputs are labelled as derived and should be regenerated when Document 06 changes materially.</p>
+        <div class="checkline"><input id="includeComments" type="checkbox" checked><label for="includeComments">Add concise generated comments for unresolved or deferred items.</label></div>
+        <div class="checkline"><input id="includeAddendum" type="checkbox" checked><label for="includeAddendum">Append the platform-bootstrap addendum to Document 06.</label></div>
+        <div class="toolbar" style="margin:12px 0">
+          <button id="savePartial" class="primary">Save partial Document 06</button>
+          <button id="generate" class="good">Generate final outputs</button>
+          <button id="downloadAll" class="primary" disabled>Download bundle as ZIP</button>
+          <button id="chooseOutputFolder">Choose output folder</button>
+          <button id="writeFolder" disabled>Write exact files to output folder</button>
+        </div>
+        <div class="small muted" style="margin-top:6px">
+          <strong>Save partial</strong> creates a resumable project working copy. It never writes to the Blank framework 06.
+        </div>
+        <div class="file-state" id="outputFolderState">No direct output folder selected. ZIP download always works.</div>
+        <div id="outputs" class="output-grid"></div>
+      </section>
+    </main>
+  </div>
+</div>
+<footer>
+  Self-contained local application. The pristine framework 06 is read-only; project working copies can be saved and reloaded. The last explicitly authorized framework folder is remembered where the browser permits it.
+</footer>
+</div>
+<div id="toast" class="toast hidden"></div>
+<div id="helpModalBackdrop" class="modal-backdrop hidden" role="presentation">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="helpModalTitle">
+    <div class="modal-head">
+      <div>
+        <div class="small muted" id="helpModalSection"></div>
+        <h2 id="helpModalTitle">Field help</h2>
+      </div>
+      <button class="modal-close" id="helpModalClose" aria-label="Close help">×</button>
+    </div>
+    <div class="modal-body" id="helpModalBody"></div>
+  </section>
+</div>
+
+<script>
+"use strict";
+const GENERATOR_VERSION = "0.9.0";
+const PREFERRED_FRAMEWORK_PATH = String.raw`D:\codebase\! docs\BLANK PLATFORM\blank`;
+const REQUIRED_FRAMEWORK_FILES = [
+  "00_BLANK_PLATFORM_MANIFESTO.md",
+  "01_CANONICAL_PLATFORM_ARCHITECTURE.md",
+  "02_AI_DEVELOPMENT_CONSTITUTION.md",
+  "03_PLATFORM_CAPABILITY_CONTRACTS.md",
+  "04_PLATFORM_SECURITY_MODEL.md",
+  "05_BLANK_PLATFORM_DEFINITION_OF_DONE.md",
+  "06_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION_TEMPLATE.md",
+  "06A_TECHNOLOGY_IMPLEMENTATION_RECIPE.md",
+  "07_DEVELOPMENT_TEST_DATA_AND_VERIFICATION_MODEL.md",
+  "08_AI_ENGINEERING_OPERATING_MODEL.md"
+];
+const SOURCE_DOC06 = "06_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION_TEMPLATE.md";
+const SOURCE_DOC06A = "06A_TECHNOLOGY_IMPLEMENTATION_RECIPE.md";
+
+const state = {
+  sourceFiles:{}, sourceFolderName:"", sourceHandle:null, outputHandle:null,
+  doc06Text:"", doc06Atext:"", doc06Name:"", doc06AName:"",
+  projectSpecText:"", projectSpecName:"", projectImportReport:null,
+  sections:[], answers:{}, bootstrap:{}, outputs:{},
+  quick:{}, answerMeta:{}, reviewMode:true, baselineApplied:false
+};
+
+
+const quickSchema = [
+  ["Deployment shape","deployment_shape",
+    [["single-app","Single internet-facing application / modular monolith"],
+     ["services","Multiple independently deployed services (already required)"]],
+    "Default to one deployable application. Split only when a real operational boundary exists."],
+  ["Primary hosting direction","hosting",
+    [["undecided","Undecided / keep portable"],["aws","AWS"],["cloudflare","Cloudflare"],["apache-vps","Own/VPS/container behind Apache"]],
+    "This influences queue, storage, secrets and deployment defaults."],
+  ["Primary production database","database",
+    [["postgres","PostgreSQL"],["sqlite","SQLite"],["undecided","Undecided"]],
+    "PostgreSQL is the safe default for a serious internet-facing multi-user system."],
+  ["Authentication direction","auth",
+    [["managed","Managed OIDC identity provider"],["library","Mature application authentication library"],["undecided","Undecided"]],
+    "Managed identity generally lowers security-maintenance burden."],
+  ["Expected initial scale","scale",
+    [["small","Small: under ~1,000 active users"],["medium","Medium: ~1,000–50,000"],["large","Large / unusually high throughput"]],
+    "Used mainly to avoid premature distributed-systems complexity."],
+  ["Data sensitivity","sensitivity",
+    [["normal","Normal business data"],["sensitive","Sensitive personal/commercial data"],["regulated","Regulated / high-assurance data"]],
+    "Changes review strictness, not the basic secure-by-default posture."],
+  ["Availability expectation","availability",
+    [["normal","Normal production; brief maintenance acceptable"],["high","High availability; minimal planned downtime"],["critical","Mission-critical / formal continuity requirement"]],
+    "Multi-region is not assumed merely because the system is public."],
+  ["Data residency / deployment region already known?","residency_known",
+    [["no","No — leave for human review"],["yes","Yes — I will specify it in review"]],
+    "Residency is intentionally never guessed."],
+  ["Enterprise SSO needed now?","enterprise_sso",
+    [["no","No"],["oidc","Yes — OIDC"],["saml","Yes — SAML/OIDC enterprise SSO"]],
+    "SAML is deferred unless a real customer requirement exists."],
+  ["Uploaded files needed now?","files",
+    [["yes","Yes"],["no","No / defer object storage"]],
+    "Avoid file infrastructure if the product genuinely does not use files."],
+  ["Outbound notifications needed now?","notifications",
+    [["email","Email"],["email-sms","Email + SMS"],["none","None initially"]],
+    "SMS is not enabled by default."],
+  ["Dedicated full-text search needed now?","search",
+    [["no","No — use database capabilities initially"],["yes","Yes — already required"]],
+    "Dedicated search is deferred by default."],
+  ["Analytics / BI platform needed now?","analytics",
+    [["no","No — defer"],["yes","Yes — already a requirement"]],
+    "Analytics is not mandatory Blank core."],
+  ["Multi-region active/active already required?","multiregion",
+    [["no","No"],["yes","Yes — hard requirement"]],
+    "Active/active is a major complexity multiplier."],
+  ["Superpowers execution companion","superpowers",
+    [["when-available","Use Superpowers when installed; otherwise native Blank"],
+     ["required","Require Superpowers for supported coding-agent workflows"],
+     ["disabled","Do not use Superpowers; native Blank only"]],
+    "Superpowers is never an architectural dependency. Blank remains complete without it."],
+  ["Repository host","repo_host",
+    [["github","GitHub"],["gitlab","GitLab"],["other","Other / undecided"]],
+    "Used mainly for CI/CD defaults."],
+  ["UI/CSS baseline","ui_stack",
+    [["tailwind","Tailwind CSS + accessible React components"],["other","Other mainstream stack"],["undecided","Undecided"]],
+    "Keeps UI implementation conventional and AI-friendly."]
+];
+
+const HUMAN_REVIEW_SECTION_PATTERNS = [
+  /Region and Data Residency/i,/Disaster Recovery/i,/Break-Glass/i,/Platform Data Inspector/i,
+  /Administrative Access Path/i,/Cost Model/i,/Cost Guardrails/i,/Supported Deployment Models/i,
+  /Penetration Testing/i,/Legal Hold/i,/Retention/i,/Scalability Targets/i,/Performance Targets/i,
+  /Account Deletion Authentication/i,/Sensitive Export Authentication/i
+];
+
+const SECURITY_REVIEW_SECTION_PATTERNS = [
+  /Authentication/i,/Authorization/i,/Session/i,/Tenant Isolation/i,/Secrets/i,/Cryptographic/i,
+  /TLS/i,/Audit/i,/Data Inspector/i,/Break-Glass/i,/Impersonation/i,/Backup/i,/Restore/i,
+  /Security Testing/i,/Cloud IAM/i
+];
+
+function quickDefault(key){
+  const d={
+    deployment_shape:"single-app",hosting:"undecided",database:"postgres",auth:"managed",
+    scale:"small",sensitivity:"sensitive",availability:"normal",residency_known:"no",
+    enterprise_sso:"no",files:"yes",notifications:"email",search:"no",analytics:"no",
+    multiregion:"no",superpowers:"when-available",repo_host:"github",ui_stack:"tailwind"
+  };
+  return d[key]||"";
+}
+
+function renderQuickStart(){
+  const wrap=$("quickFields"); wrap.innerHTML="";
+  for(const [label,key,options,help] of quickSchema){
+    if(state.quick[key]===undefined) state.quick[key]=quickDefault(key);
+    const box=document.createElement("div"); box.className="quick-choice";
+    const lab=document.createElement("label");
+    const span=document.createElement("span"); span.textContent=label; lab.appendChild(span);
+    const select=document.createElement("select");
+    for(const [v,t] of options){const o=document.createElement("option");o.value=v;o.textContent=t;select.appendChild(o);}
+    select.value=state.quick[key];
+    select.addEventListener("change",()=>state.quick[key]=select.value);
+    lab.appendChild(select);
+    const note=document.createElement("div");note.className="small muted";note.textContent=help;
+    box.append(lab,note);wrap.appendChild(box);
+  }
+}
+
+function fieldId(sec,bi,fi){return makeKey(sec,bi,fi);}
+
+function setGeneratedAnswer(key,value,confidence="high",review=false,reason=""){
+  if(!value || state.answers[key]) return false;
+  state.answers[key]=value;
+  state.answerMeta[key]={source:"generated-default",confidence,review,reason};
+  return true;
+}
+
+function shouldHumanReviewSection(sec){
+  return HUMAN_REVIEW_SECTION_PATTERNS.some(rx=>rx.test(sec.title));
+}
+function isSecuritySection(sec){
+  return SECURITY_REVIEW_SECTION_PATTERNS.some(rx=>rx.test(sec.title));
+}
+
+function defaultForField(sec,f){
+  const q=state.quick;
+  const t=`${sec.title} :: ${f.label}`.toLowerCase();
+
+  // Explicitly leave genuinely project-specific/high-risk values for a human.
+  if(shouldHumanReviewSection(sec)) return null;
+  if(/primary region|secondary region|data residency|rpo|rto|retention|legal hold|break-glass|direct sql|cost|budget|scalability target|performance target/i.test(t)) return null;
+
+  // Generic status behavior.
+  if(/^status$/i.test(f.label)){
+    if(sec.kind==="optional") return ["DEFERRED","high",false,"Optional capability deferred until a real trigger exists."];
+    return ["APPROVED","medium",isSecuritySection(sec),"Baseline status; security-sensitive section should be reviewed."];
+  }
+
+  // Language/runtime/framework.
+  if(/backend language|frontend language/i.test(f.label)) return ["TypeScript","high",false,"Expected Node/Next stack."];
+  if(/other approved languages/i.test(f.label)) return ["None by default; add only for a justified subsystem","high",false,"Avoid extra toolchains."];
+  if(/forbidden.*languages/i.test(f.label)) return ["No blanket ban; additional production languages require explicit justification","medium",false,"Controlled expansion."];
+  if(/^runtime$/i.test(f.label)) return ["Node.js","high",false,"Expected runtime."];
+  if(/^version$/i.test(f.label) && /Runtime/i.test(sec.title)) return ["Current supported Node.js LTS; pin exact major in repository tooling","medium",false,"Supported LTS policy."];
+  if(/^framework$/i.test(f.label) && /Backend Framework/i.test(sec.title)) return ["Next.js App Router server capabilities","high",false,"Single-framework default."];
+  if(/^framework$/i.test(f.label) && /Frontend Framework/i.test(sec.title)) return ["Next.js + React","high",false,"Single-framework default."];
+  if(/rendering model/i.test(f.label)) return ["Next.js App Router hybrid server/client rendering","medium",false,"Conventional Next.js."];
+  if(/styling strategy/i.test(f.label)) return [q.ui_stack==="tailwind"?"Tailwind CSS":"Mainstream accessible CSS/component stack selected by team","medium",q.ui_stack!=="tailwind","UI choice."];
+  if(/accessibility baseline/i.test(f.label)) return ["WCAG 2.2 AA target","high",false,"Common accessibility baseline."];
+
+  // Repo/build/package.
+  if(/repository model/i.test(f.label)) return ["Monorepo / single repository for the modular monolith","high",q.deployment_shape==="services","Low-context default."];
+  if(/package manager/i.test(f.label)) return ["npm unless the team standardizes on pnpm","medium",false,"Mainstream Node baseline."];
+  if(/lockfile required/i.test(f.label)) return ["Yes — committed and enforced","high",false,"Reproducibility."];
+  if(/deployment shape/i.test(f.label)) return [q.deployment_shape==="single-app"?"Modular monolith":"Multiple services only where already required","high",q.deployment_shape!=="single-app","Architecture profile."];
+  if(/when to split services/i.test(f.label)) return ["Only after a measured scaling, ownership, reliability, or independent-deployment requirement","high",false,"Avoid premature services."];
+
+  // API.
+  if(/primary api style/i.test(f.label)) return ["REST/HTTP + JSON","high",false,"Boring interoperable default."];
+  if(/^serialization$/i.test(f.label)) return ["JSON with explicit date/time/decimal conventions","high",false,"Web API default."];
+  if(/schema standard/i.test(f.label)) return ["OpenAPI","high",false,"Machine-readable REST contract."];
+  if(/error format/i.test(f.label)) return ["Canonical platform error model; no internal stack details","high",false,"Safe error baseline."];
+  if(/pagination/i.test(f.label)) return ["Bounded pagination required for potentially large collections","high",false,"Resource safety."];
+  if(/filtering/i.test(f.label)) return ["Allowlisted filters only; validate types and tenant scope","high",false,"Safe query surface."];
+  if(/sorting/i.test(f.label)) return ["Allowlisted sort fields with deterministic secondary ordering","high",false,"Stable pagination."];
+
+  // Database / ORM.
+  if(/^database$/i.test(f.label) && /Database Engine/i.test(sec.title)) return [q.database==="sqlite"?"SQLite":q.database==="postgres"?"PostgreSQL":"PostgreSQL unless later evidence justifies SQLite","high",q.database==="undecided","Database profile."];
+  if(/hosting model/i.test(f.label) && /Database Engine|Database Hosting/i.test(sec.title)) return [q.database==="postgres"?"Managed PostgreSQL where practical":"Local/single-instance SQLite only where deployment model permits","medium",q.database==="undecided","Database hosting baseline."];
+  if(/orm.*query layer/i.test(f.label)) return ["Drizzle ORM or Prisma — select one after a short migration/transaction/tenant-scope spike","medium",true,"One of few remaining implementation choices worth explicit review."];
+  if(/repository pattern/i.test(f.label)) return ["Thin repository/data-access boundary only where it adds contract value; avoid ceremonial wrappers","high",false,"Avoid over-abstraction."];
+  if(/raw sql policy/i.test(f.label)) return ["Allowed only through reviewed, parameterized escape hatches when ORM/query layer is insufficient","high",isSecuritySection(sec),"Safe escape hatch."];
+  if(/primary key type|identifier type/i.test(f.label)) return ["UUID/ULID-style opaque identifiers","medium",false,"Portable opaque IDs."];
+  if(/tenant key/i.test(f.label)) return ["Explicit tenant_id on tenant-scoped records","high",true,"Tenant boundary."];
+  if(/migration tool/i.test(f.label)) return ["Use the selected ORM's production-capable migration tooling if it meets locking/forward-migration requirements","medium",true,"Depends on ORM choice."];
+  if(/rollback policy/i.test(f.label)) return ["Application rollback supported; database migrations are forward-oriented and not assumed reversible","high",false,"Safer migration model."];
+  if(/default isolation/i.test(f.label)) return ["Database default isolation unless a specific operation requires stronger semantics; document exceptions","medium",true,"DB-specific review."];
+  if(/concurrency token/i.test(f.label)) return ["Version integer or equivalent optimistic concurrency token on conflict-sensitive records","medium",false,"Prevents silent overwrite."];
+
+  // Tenancy/authz.
+  if(/tenant context source/i.test(f.label)) return ["Server-established context from authenticated membership/selection; never trust arbitrary client tenant claims","high",true,"Security boundary."];
+  if(/application query scoping/i.test(f.label)) return ["Mandatory tenant-scoped data-access conventions plus automated cross-tenant tests","high",true,"Security boundary."];
+  if(/^database rls$/i.test(f.label)) return [q.database==="postgres"?"Use PostgreSQL RLS as defense in depth where practical":"Not available/appropriate on SQLite; rely on application scoping + tests","medium",true,"Database-dependent defense in depth."];
+  if(/authorization engine/i.test(f.label)) return ["Central in-process authorization service implementing Subject + Action + Resource + Context, default deny","high",true,"Canonical authz contract."];
+  if(/rbac representation/i.test(f.label)) return ["Permission registry + roles as permission bundles","high",true,"Central authz model."];
+  if(/abac representation/i.test(f.label)) return ["Context/resource predicates evaluated by centralized authorization policies","medium",true,"Contextual checks."];
+
+  // Authentication/session.
+  if(/authentication provider.*library/i.test(f.label)) return [q.auth==="managed"?"Managed OIDC identity provider":"Mature actively maintained Next.js/Node authentication library","medium",true,"Human selection of provider/library still required."];
+  if(/local password support/i.test(f.label)) return [q.auth==="managed"?"Prefer provider-managed credentials; local passwords only if required":"Supported only through mature library/provider with modern hashing and recovery","medium",true,"Security-sensitive."];
+  if(/passkey support/i.test(f.label)) return ["Supported/preferred where chosen identity stack permits WebAuthn/passkeys","high",true,"Modern strong auth."];
+  if(/^mfa$/i.test(f.label) || /mfa/i.test(f.label)) return ["Required for privileged platform administration; available for ordinary users","high",true,"Privileged security."];
+  if(/session model/i.test(f.label)) return ["Revocable server-controlled session model; avoid irreversible long-lived stateless privilege","high",true,"Revocation requirement."];
+  if(/absolute lifetime/i.test(f.label)) return ["Finite; choose exact duration during security review based on user/admin risk","medium",true,"Needs risk-specific value."];
+  if(/idle timeout/i.test(f.label)) return ["Finite; shorter for privileged/elevated sessions","medium",true,"Needs risk-specific value."];
+  if(/cookie policy/i.test(f.label)) return ["Secure, HttpOnly, SameSite configured deliberately; narrow domain/path","high",true,"Session security."];
+
+  // Federation.
+  if(/^oidc$/i.test(f.label)) return [q.enterprise_sso==="no"?"Supported by auth stack but enterprise federation deferred":q.enterprise_sso==="oidc"||q.enterprise_sso==="saml"?"Enabled":"Deferred","high",q.enterprise_sso!=="no","Enterprise SSO profile."];
+  if(/^saml$/i.test(f.label)) return [q.enterprise_sso==="saml"?"Enabled only for concrete enterprise requirement":"Deferred","high",q.enterprise_sso==="saml","Avoid unnecessary SAML."];
+
+  // Secrets/TLS/edge.
+  if(/secret store/i.test(f.label)) {
+    if(q.hosting==="aws") return ["AWS Secrets Manager","high",true,"AWS-native managed secrets."];
+    if(q.hosting==="cloudflare") return ["Cloudflare-supported runtime secret bindings/secrets mechanism","high",true,"Cloudflare-native secrets."];
+    return ["Managed deployment-platform secret store; no production secrets in source","medium",true,"Provider depends on host."];
+  }
+  if(/tls termination/i.test(f.label)) return [q.hosting==="apache-vps"?"Apache/edge terminates TLS with explicit trusted-proxy configuration":"Terminate at managed edge/load balancer; app trusts forwarding headers only from known proxy","high",true,"Internet boundary."];
+  if(/reverse proxy/i.test(f.label)) return [q.hosting==="apache-vps"?"Apache HTTP Server reverse proxy":"Managed edge/load balancer or platform ingress","high",true,"Host profile."];
+  if(/^waf$/i.test(f.label)) return [q.hosting==="cloudflare"?"Cloudflare WAF/edge controls as defense in depth":q.hosting==="aws"?"AWS WAF if threat/cost model justifies it; application security remains mandatory":"Optional edge WAF; application controls remain authoritative","medium",false,"Defense in depth."];
+  if(/^cors$/i.test(f.label)) return ["Explicit allowlist; same-origin by default where possible","high",true,"Browser security boundary."];
+  if(/^csrf$/i.test(f.label)) return ["Protect state-changing cookie-authenticated requests using framework-supported anti-CSRF strategy and SameSite cookies","high",true,"Browser security."];
+  if(/request limits/i.test(f.label)) return ["Finite request/body limits; stricter defaults with explicit exceptions for upload paths","high",false,"Resource safety."];
+  if(/ssrf strategy/i.test(f.label)) return ["Allowlisted outbound destinations where practical; validate schemes/hosts and restrict network egress for sensitive runtimes","high",true,"Server-side request forgery defense."];
+
+  // Audit/outbox/jobs.
+  if(/primary audit store/i.test(f.label)) return ["Append-only audit records in protected persistence, with stronger immutable sink added if assurance requires it","high",true,"Accountability."];
+  if(/append-only enforcement/i.test(f.label)) return ["Ordinary application roles cannot UPDATE/DELETE audit history; separate privileged maintenance path if ever required","high",true,"Audit integrity."];
+  if(/audit write strategy/i.test(f.label)) return ["Same transaction where feasible or transactional outbox when audit publication crosses storage boundaries","medium",true,"Consistency."];
+  if(/outbox storage/i.test(f.label)) return ["Transactional outbox table in primary database","high",false,"Simple reliable publication."];
+  if(/^publisher$/i.test(f.label) && /Outbox/i.test(sec.title)) return ["Background worker publishes pending outbox records idempotently","high",false,"Reliable event publication."];
+  if(/^queue$/i.test(f.label)) {
+    if(q.hosting==="aws") return ["Amazon SQS","high",false,"AWS-native durable queue."];
+    if(q.hosting==="cloudflare") return ["Cloudflare Queues where runtime semantics fit","high",false,"Cloudflare-native queue."];
+    return ["Simple durable managed queue appropriate to chosen host","medium",true,"Host not yet fixed."];
+  }
+  if(/delivery semantics/i.test(f.label)) return ["At-least-once; consumers must be idempotent","high",false,"Practical queue guarantee."];
+  if(/^dlq$/i.test(f.label)) return ["Enabled for permanently failed messages/jobs with operator inspection and replay","high",false,"Failure recovery."];
+  if(/retry/i.test(f.label) && /Worker|Queue|Webhook|Event|Job/i.test(sec.title)) return ["Bounded exponential backoff with jitter; retry only transient failures","high",false,"Safe retry baseline."];
+
+  // Files.
+  if(/object store/i.test(f.label)) {
+    if(q.files==="no") return ["DEFERRED — no file/blob requirement yet","high",false,"Capability not needed now."];
+    if(q.hosting==="aws") return ["Amazon S3","high",false,"AWS-native object storage."];
+    if(q.hosting==="cloudflare") return ["Cloudflare R2","high",false,"Cloudflare-native object storage."];
+    return ["Private S3-compatible object storage","medium",true,"Provider depends on host."];
+  }
+  if(/tenant segmentation/i.test(f.label)) return ["Tenant ID in object metadata/key namespace plus authorization at access time; key possession never grants access","high",true,"Tenant isolation."];
+  if(/presigned url strategy/i.test(f.label)) return ["Short-lived signed URLs generated only after authorization; narrow operation/content constraints","high",true,"File access security."];
+  if(/scanner/i.test(f.label)) return [q.files==="yes"?"Malware scan untrusted uploads before protected availability; choose provider/tool during implementation":"NOT APPLICABLE until uploads are enabled","medium",q.files==="yes","File security."];
+
+  // Notifications.
+  if(/email delivery/i.test(sec.title) && /provider/i.test(f.label)) return [q.notifications==="none"?"DEFERRED": "Mature transactional email provider behind notification adapter","medium",q.notifications!=="none","Provider selection."];
+  if(/sms delivery/i.test(sec.title) && /provider/i.test(f.label)) return [q.notifications==="email-sms"?"Mature regional SMS provider behind adapter":"DEFERRED","high",q.notifications==="email-sms","SMS optional."];
+  if(/provider abstraction/i.test(f.label)) return ["Yes — domain code depends on platform notification contract, not provider SDK","high",false,"Portability boundary."];
+
+  // Config/flags/time/i18n/money.
+  if(/setting definitions storage/i.test(f.label)) return ["Typed definitions in code/schema; scoped values in database","high",false,"Deterministic config."];
+  if(/secret settings/i.test(f.label)) return ["References/metadata only; secret values remain in secret store","high",true,"Secret separation."];
+  if(/feature flag system/i.test(f.label)) return ["Internal DB-backed flags initially; external vendor only if rollout needs justify it","high",false,"Avoid extra vendor."];
+  if(/time library/i.test(f.label)) return ["Platform-standard JavaScript temporal/date library chosen for explicit UTC/timezone semantics; isolate behind Clock abstraction","medium",false,"Time correctness."];
+  if(/timezone source/i.test(f.label)) return ["IANA timezone database supplied by runtime/platform","high",false,"Standard timezone source."];
+  if(/decimal type/i.test(f.label)) return ["Exact decimal representation; never binary floating point for authoritative money","high",false,"Money safety."];
+
+  // Observability/health.
+  if(/logging library/i.test(f.label)) return ["Structured JSON logger compatible with Node/Next runtime","medium",false,"Machine-readable logs."];
+  if(/format/i.test(f.label) && /Logging/i.test(sec.title)) return ["Structured JSON","high",false,"Log interoperability."];
+  if(/correlation/i.test(f.label)) return ["Correlation/request ID propagated through requests, jobs and external calls","high",false,"Traceability."];
+  if(/metrics library/i.test(f.label)) return ["OpenTelemetry-compatible metrics instrumentation","medium",false,"Portable observability."];
+  if(/tracing library/i.test(f.label)) return ["OpenTelemetry where tracing materially helps","medium",false,"Standard tracing."];
+  if(/liveness endpoint/i.test(f.label)) return ["/health/live (or equivalent), process-only liveness","high",false,"Orchestrator health."];
+  if(/readiness endpoint/i.test(f.label)) return ["/health/ready (or equivalent), critical dependency readiness","high",false,"Traffic safety."];
+
+  // Hosting/deployment.
+  if(/^provider$/i.test(f.label) && /Infrastructure Hosting/i.test(sec.title)) {
+    if(q.hosting==="aws") return ["AWS","high",false,"Selected profile."];
+    if(q.hosting==="cloudflare") return ["Cloudflare","high",false,"Selected profile."];
+    if(q.hosting==="apache-vps") return ["Self-managed/VPS/container host behind Apache","high",true,"Selected profile requires ops review."];
+    return null;
+  }
+  if(/compute service/i.test(f.label)) {
+    if(q.hosting==="aws") return ["AWS ECS/Fargate or similarly managed container compute","medium",true,"Choose exact AWS compute during implementation."];
+    if(q.hosting==="cloudflare") return ["Cloudflare Containers where runtime support fits application requirements","medium",true,"Validate current runtime constraints."];
+    return ["Single managed container/application service appropriate to selected host","medium",true,"Host undecided."];
+  }
+  if(/orchestrator/i.test(f.label)) return [q.scale==="large"?"DEFERRED unless concrete orchestration need is demonstrated":"NOT REQUIRED initially; avoid Kubernetes unless operational need exists","high",q.scale==="large","Avoid premature Kubernetes."];
+  if(/high availability/i.test(f.label)) return [q.availability==="normal"?"Single-region managed HA for critical state; multiple app instances where practical":"Managed HA with explicit failover/recovery design","medium",q.availability!=="normal","Availability profile."];
+  if(/multi-region/i.test(sec.title) || /active\/active/i.test(f.label)) return [q.multiregion==="yes"?"REQUIRES EXPLICIT ARCHITECTURE REVIEW":"DEFERRED — no active/active requirement","high",q.multiregion==="yes","Major complexity gate."];
+
+  // CI/CD/IaC.
+  if(/ci provider/i.test(f.label)) return [q.repo_host==="github"?"GitHub Actions":q.repo_host==="gitlab"?"GitLab CI":"Repository-host native CI or team standard","high",q.repo_host==="other","Repo profile."];
+  if(/deployment tool/i.test(f.label)) return ["Hosting-platform native deployment pipeline wrapped by project scripts/CI","medium",true,"Depends on host."];
+  if(/iac tool/i.test(f.label)) return ["Use one mainstream IaC tool appropriate to selected host (e.g. OpenTofu/Terraform/CDK); choose during implementation","medium",true,"Worth explicit host-specific decision."];
+  if(/default branch/i.test(f.label)) return ["main","high",false,"Conventional default."];
+  if(/pr requirement/i.test(f.label)) return ["Required for protected main branch","high",false,"Change control."];
+  if(/protected branches/i.test(f.label)) return ["main and release branches as applicable","high",false,"Repository security."];
+
+  // Testing.
+  if(/^framework$/i.test(f.label) && /Unit Testing/i.test(sec.title)) return ["Vitest or Jest; choose one aligned with the selected Next/TypeScript toolchain","medium",true,"Testing framework choice."];
+  if(/^framework$/i.test(f.label) && /End-to-End Testing/i.test(sec.title)) return ["Playwright","high",false,"Mainstream browser E2E."];
+  if(/sast/i.test(f.label)) return ["Enabled in CI using repository/platform-supported scanner","medium",true,"Security tooling provider selection."];
+  if(/dependency scan/i.test(f.label)) return ["Enabled in CI plus repository-host dependency alerts","high",false,"Supply-chain baseline."];
+  if(/secret scan/i.test(f.label)) return ["Enabled pre-commit/CI/repository host where practical","high",false,"Credential leakage defense."];
+
+  // Search/analytics optional.
+  if(/^search$/i.test(f.label) || /search engine/i.test(sec.title)) return [q.search==="yes"?"Dedicated search requires explicit product/scale evaluation":"DEFERRED — use PostgreSQL search capabilities initially","high",q.search==="yes","Optional complexity."];
+  if(/analytics|reporting/i.test(sec.title) && /store|tool|read replica|olap/i.test(f.label)) return [q.analytics==="yes"?"Requires separate analytics design":"DEFERRED — not part of mandatory Blank core","high",q.analytics==="yes","Optional product capability."];
+
+  // Superpowers + mature-toolbox governance (Blank v0.02.0+).
+  if(/superpowers mode/i.test(f.label)) return [q.superpowers==="disabled"?"DISABLED":q.superpowers==="required"?"ENABLED":"MIXED_BY_AGENT / use when available","high",false,"Execution companion is optional; Blank remains standalone."];
+  if(/installation\/version policy/i.test(f.label) && /Superpowers Companion Mode/i.test(sec.title)) return [q.superpowers==="disabled"?"NOT APPLICABLE":"Pin/record installed Superpowers version per agent harness; update deliberately","medium",q.superpowers!=="disabled","Execution tooling lifecycle."];
+  if(/cost\/risk overrides/i.test(f.label)) return ["Blank Document 08 risk tiers, model selection, delegation budget and verification budget take precedence","high",false,"Cost-aware cooperation rule."];
+  if(/toolbox registry location/i.test(f.label)) return ["blank/project/PROJECT_TOOLBOX_REGISTRY.yaml","high",false,"Machine-readable project toolbox index."];
+  if(/ui primitive library\/registry/i.test(f.label)) return [q.ui_stack==="tailwind"?"Approved accessible React component/primitives inventory + Tailwind design tokens; exact library recorded after selection":"Approved project UI primitive registry","medium",true,"Avoid duplicate UI primitives."];
+  if(/persistence\/data-access primitives/i.test(f.label)) return ["Selected ORM/data-access public entry points; generic CRUD is not re-invented outside them","high",true,"Mature data-access contract."];
+  if(/platform capability registry/i.test(f.label)) return ["blank/project/PROJECT_PLATFORM_CAPABILITY_REGISTRY.yaml","high",false,"Existing capability locator."];
+  if(/search procedure before new primitive/i.test(f.label)) return ["Search PROJECT_TOOLBOX_REGISTRY → mature contracts → selected framework/library primitives → approved dependencies → tests/examples","high",false,"Mandatory toolbox gate."];
+  if(/toolbox gap decision record location/i.test(f.label)) return ["docs/adr/toolbox-gaps/ or equivalent approved project decision path","medium",true,"Human approval evidence location."];
+  if(/how mature contracts are marked/i.test(f.label)) return ["Capability registry maturity/frozen marker + versioned published contract","high",true,"Explicit immutability marker."];
+  if(/who may approve contract change/i.test(f.label)) return ["User/project owner through explicit Toolbox Gap / architecture decision","high",true,"Human gate."];
+  if(/required user approval mechanism/i.test(f.label)) return ["Explicit user decision before import/extension/contract change/bespoke reusable code","high",false,"Canonical heavy requirement."];
+  if(/external solution research expectation/i.test(f.label)) return ["Consider mature well-supported pre-existing libraries/projects (including GitHub) before bespoke reusable code; user may conduct/drive research","high",false,"Reuse before generation."];
+  if(/import-vs-build preference/i.test(f.label)) return ["Prefer mature maintained existing solution when it fits contracts/security/maintenance/cost; bespoke build only after explicit approval","high",false,"Money and maintenance discipline."];
+
+  // Generic safe fallbacks based on field labels.
+  if(/timeout/i.test(f.label)) return ["Finite conservative timeout; exact value tuned by operation class and measured behavior","medium",false,"Avoid unbounded waits."];
+  if(/failure policy|failure mode|failure semantics/i.test(f.label)) return ["Fail safely; security-sensitive uncertainty must not silently grant access","high",isSecuritySection(sec),"Canonical safe-failure rule."];
+  if(/environment separation/i.test(f.label)) return ["development, test, staging, production with separate secrets/data and production-only restrictions","high",false,"Trusted environment model."];
+  if(/audit/i.test(f.label) && /yes|no|integration/i.test(f.label)) return ["Enabled for privileged/security-significant operations","high",isSecuritySection(sec),"Audit baseline."];
+  if(/owner/i.test(f.label)) return ["Stable team/role rather than individual person","high",false,"Durable ownership."];
+  if(/upgrade cadence|upgrade policy/i.test(f.label)) return ["Regular scheduled dependency/runtime review; security fixes prioritized by severity","medium",false,"Lifecycle hygiene."];
+
+  return null;
+}
+
+function applySafeBaseline(){
+  let filled=0,deferred=0;
+  state.answerMeta=state.answerMeta||{};
+
+  // Preserve any imported/current human values by marking them manual.
+  for(const sec of state.sections){
+    sec.blocks.forEach((b,bi)=>b.fields.forEach((f,fi)=>{
+      const key=fieldId(sec,bi,fi);
+      if(state.answers[key] && !state.answerMeta[key]){
+        state.answerMeta[key]={source:"human-or-imported",confidence:"human",review:false,reason:"Existing answer preserved."};
+      }
+    }));
+  }
+
+  for(const sec of state.sections){
+    sec.blocks.forEach((b,bi)=>b.fields.forEach((f,fi)=>{
+      const key=fieldId(sec,bi,fi);
+      if(state.answers[key]) return;
+      const d=defaultForField(sec,f);
+      if(d){
+        const [value,confidence,review,reason]=d;
+        if(setGeneratedAnswer(key,value,confidence,review,reason)){
+          filled++;
+          if(/^DEFERRED\b/i.test(value)) deferred++;
+        }
+      } else {
+        state.answerMeta[key]={source:"unresolved",confidence:"none",review:true,reason:"No safe default; human/project decision required."};
+      }
+    }));
+  }
+
+  state.baselineApplied=true;
+  renderQuestions();
+  refreshGhostSuggestions();
+  updateProgress();
+  updateBaselineSummary();
+  setReviewMode(true);
+  $("showReviewOnly").disabled=false;
+  $("baselineSummary").classList.remove("hidden");
+  toast(`Safe baseline applied: ${filled} values filled; ${deferred} optional choices deferred.`);
+}
+
+function sectionNeedsReview(sec){
+  if(shouldHumanReviewSection(sec)) return true;
+  let needs=false;
+  sec.blocks.forEach((b,bi)=>b.fields.forEach((f,fi)=>{
+    const key=fieldId(sec,bi,fi);
+    const v=(state.answers[key]||"").trim();
+    const meta=state.answerMeta[key];
+    if(!v || (meta && meta.review)) needs=true;
+  }));
+  return needs;
+}
+
+function updateBaselineSummary(){
+  let auto=0,deferred=0,review=0,manual=0;
+  for(const sec of state.sections){
+    sec.blocks.forEach((b,bi)=>b.fields.forEach((f,fi)=>{
+      const key=fieldId(sec,bi,fi), v=(state.answers[key]||"").trim(), m=state.answerMeta[key];
+      if(m?.source==="generated-default"){
+        auto++;
+        if(/^DEFERRED\b/i.test(v)) deferred++;
+        if(m.review) review++;
+      }else if(v){manual++;}
+      else if(m?.review){review++;}
+    }));
+  }
+  $("autoFilledCount").textContent=auto;
+  $("deferredCount").textContent=deferred;
+  $("reviewCount").textContent=review;
+  $("manualCount").textContent=manual;
+}
+
+function setReviewMode(on){
+  state.reviewMode=on;
+  $("reviewModeBtn").classList.toggle("active",on);
+  $("advancedModeBtn").classList.toggle("active",!on);
+  for(const sec of state.sections){
+    const card=$(`sec-${sec.num}`);
+    if(card) card.classList.toggle("review-hidden",on && !sectionNeedsReview(sec));
+  }
+  applyFilter();
+}
+
+const bootstrapSchema = [
+  ["Project / Repository Name","project_name","short",""],
+  ["Source Root","source_root","short","src/"],
+  ["Platform Implementation Root","implementation_root","short","src/platform/"],
+  ["Contracts Path","contracts_path","short","docs/contracts/"],
+  ["Tests Root","tests_root","short","tests/"],
+  ["Documentation Root","docs_root","short","docs/"],
+  ["ADR Path","adr_path","short","docs/adr/"],
+  ["Runbooks Path","runbooks_path","short","docs/runbooks/"],
+  ["Infrastructure Path","infra_path","short","infrastructure/"],
+  ["Scripts Path","scripts_path","short","scripts/"],
+  ["Install / Setup Command","cmd_setup","short",""],
+  ["Start Command","cmd_start","short",""],
+  ["Stop Command","cmd_stop","short",""],
+  ["Affected Tests Command","cmd_test_affected","short",""],
+  ["Full Test Command","cmd_test_full","short",""],
+  ["Lint Command","cmd_lint","short",""],
+  ["Typecheck Command","cmd_typecheck","short",""],
+  ["Create Migration Command","cmd_migration_create","short",""],
+  ["Apply Migration Command","cmd_migration_apply","short",""],
+  ["Reset Database Command","cmd_db_reset","short",""],
+  ["Seed Baseline Command","cmd_seed","short",""],
+  ["Load Scenario Command","cmd_scenario","short",""],
+  ["Build Command","cmd_build","short",""],
+  ["Protected Paths (one per line)","protected_paths","long","auth/\nauthorization/\ntenancy/\naudit/\ndata-inspector/\nmigrations/\nsecurity/"],
+  ["Platform Core Owner / Role","owner_platform","short","platform"],
+  ["Security Owner / Role","owner_security","short","platform-security"],
+  ["Operations Owner / Role","owner_operations","short","operations"],
+  ["Development-only capabilities","dev_capabilities","long","Synthetic data generation\nDatabase reset/truncate\nFake outbound providers\nVerbose diagnostics"],
+  ["Staging restrictions","staging_restrictions","long","Production-like security controls; synthetic or approved masked data only."],
+  ["Production restrictions","prod_restrictions","long","No dev-only reset/seed shortcuts; privileged data operations require explicit authorization/elevation/audit."],
+  ["Additional implementation notes","implementation_notes","long",""]
+];
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+function slug(s){ return String(s).toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,""); }
+function toast(msg){
+  $("toast").textContent=msg; $("toast").classList.remove("hidden");
+  clearTimeout(toast.t); toast.t=setTimeout(()=>$("toast").classList.add("hidden"),2400);
+}
+function yamlQuote(v){
+  if(v===null||v===undefined||v==="") return '""';
+  return JSON.stringify(String(v));
+}
+function mdValue(v){ return String(v??"").replace(/\r/g,"").trim(); }
+
+const HELP_RESOURCES = {
+  next: {title:"Next.js documentation", url:"https://nextjs.org/docs/app"},
+  node: {title:"Node.js documentation", url:"https://nodejs.org/docs/latest/api/"},
+  typescript: {title:"TypeScript Handbook", url:"https://www.typescriptlang.org/docs/handbook/"},
+  postgres: {title:"PostgreSQL current documentation", url:"https://www.postgresql.org/docs/current/"},
+  sqlite: {title:"SQLite documentation", url:"https://www.sqlite.org/docs.html"},
+  prisma: {title:"Prisma ORM documentation", url:"https://www.prisma.io/docs"},
+  drizzle: {title:"Drizzle ORM documentation", url:"https://orm.drizzle.team/docs/overview"},
+  tailwind: {title:"Tailwind CSS documentation", url:"https://tailwindcss.com/docs"},
+  apacheProxy: {title:"Apache HTTP Server reverse proxy guide", url:"https://httpd.apache.org/docs/current/en/howto/reverse_proxy.html"},
+  cloudflareContainers: {title:"Cloudflare Containers documentation", url:"https://developers.cloudflare.com/containers/"},
+  cloudflareR2: {title:"Cloudflare R2 documentation", url:"https://developers.cloudflare.com/r2/"},
+  cloudflareQueues: {title:"Cloudflare Queues documentation", url:"https://developers.cloudflare.com/queues/"},
+  awsEcs: {title:"AWS ECS documentation", url:"https://docs.aws.amazon.com/ecs/"},
+  awsFargate: {title:"AWS Fargate documentation", url:"https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html"},
+  awsSecrets: {title:"AWS Secrets Manager documentation", url:"https://docs.aws.amazon.com/secretsmanager/"},
+  awsS3: {title:"Amazon S3 documentation", url:"https://docs.aws.amazon.com/s3/"},
+  awsSqs: {title:"Amazon SQS documentation", url:"https://docs.aws.amazon.com/sqs/"},
+  owaspAuth: {title:"OWASP Authentication Cheat Sheet", url:"https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html"},
+  owaspSession: {title:"OWASP Session Management Cheat Sheet", url:"https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html"},
+  owaspAuthz: {title:"OWASP Authorization Cheat Sheet", url:"https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"},
+  owaspSecrets: {title:"OWASP Secrets Management Cheat Sheet", url:"https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"},
+  owaspAsvs: {title:"OWASP Application Security Verification Standard", url:"https://owasp.org/www-project-application-security-verification-standard/"},
+  openapi: {title:"OpenAPI Specification", url:"https://spec.openapis.org/oas/latest.html"},
+  otel: {title:"OpenTelemetry JavaScript documentation", url:"https://opentelemetry.io/docs/languages/js/"},
+  docker: {title:"Docker documentation", url:"https://docs.docker.com/"},
+  githubActions: {title:"GitHub Actions documentation", url:"https://docs.github.com/actions"},
+  webauthn: {title:"W3C Web Authentication specification", url:"https://www.w3.org/TR/webauthn-3/"},
+  oidc: {title:"OpenID Connect Core", url:"https://openid.net/specs/openid-connect-core-1_0.html"},
+  oauth: {title:"OAuth 2.0 Security Best Current Practice", url:"https://www.rfc-editor.org/rfc/rfc9700.html"},
+  mdnCookies: {title:"MDN — Secure cookie configuration", url:"https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cookies"},
+  mdnCors: {title:"MDN — Cross-Origin Resource Sharing (CORS)", url:"https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS"},
+  mdnCsp: {title:"MDN — Content Security Policy", url:"https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP"},
+  rfc9110: {title:"RFC 9110 — HTTP Semantics", url:"https://www.rfc-editor.org/rfc/rfc9110.html"},
+  ianaTimezones: {title:"IANA Time Zone Database", url:"https://www.iana.org/time-zones"},
+  iso4217: {title:"ISO — ISO 4217 currency codes", url:"https://www.iso.org/iso-4217-currency-codes.html"},
+  wcag: {title:"W3C Web Content Accessibility Guidelines (WCAG)", url:"https://www.w3.org/WAI/standards-guidelines/wcag/"},
+  jsonSchema: {title:"JSON Schema specification", url:"https://json-schema.org/specification"},
+  opentelemetry: {title:"OpenTelemetry documentation", url:"https://opentelemetry.io/docs/"},
+  dockerSecurity: {title:"Docker security documentation", url:"https://docs.docker.com/engine/security/"},
+  postgresRls: {title:"PostgreSQL — Row Security Policies", url:"https://www.postgresql.org/docs/current/ddl-rowsecurity.html"},
+  postgresBackup: {title:"PostgreSQL — Backup and Restore", url:"https://www.postgresql.org/docs/current/backup.html"}
+};
+
+function resourceList(keys){
+  return [...new Set(keys)].map(k=>HELP_RESOURCES[k]).filter(Boolean);
+}
+
+function valueByConcept(regex){
+  for(const sec of state.sections||[]){
+    for(let bi=0;bi<sec.blocks.length;bi++){
+      for(let fi=0;fi<sec.blocks[bi].fields.length;fi++){
+        const f=sec.blocks[bi].fields[fi];
+        if(regex.test(sec.title+" "+f.label)){
+          const v=mdValue(state.answers[makeKey(sec,bi,fi)]);
+          if(v) return v;
+        }
+      }
+    }
+  }
+  return "";
+}
+
+function getSuggestion(sectionTitle,label){
+  const s=(sectionTitle+" "+label).toLowerCase();
+  const currentHosting=valueByConcept(/Infrastructure Hosting.*Provider|Hosting Model.*Provider/i);
+  const currentDb=valueByConcept(/Database Engine.*Database/i);
+  const suggestions=[
+    [/primary language|backend language|frontend language/, "TypeScript (strict mode)"],
+    [/backend framework/, "Next.js App Router if one deployable web application is enough; otherwise a small dedicated Node API framework only when separation is justified"],
+    [/frontend framework/, "Next.js / React App Router"],
+    [/\bruntime\b|runtime version/, "Current supported Node.js LTS line; pin the exact supported version in the completed specification"],
+    [/database(?!.*backup)|primary transactional database/, "PostgreSQL for internet-facing production; SQLite for local development or genuinely single-instance/simple deployments"],
+    [/orm|data access|query layer/, "Drizzle ORM or Prisma; choose one after proving migrations, transactions, tenant scoping and query observability"],
+    [/migration tool/, "Use the migration system belonging to the chosen ORM if it satisfies locking and production migration requirements"],
+    [/cache/, "None initially; add Redis/Valkey or a managed cache only after a measured requirement"],
+    [/queue.*worker|message queue|queue:/, currentHosting && /aws/i.test(currentHosting) ? "Amazon SQS + worker service" : currentHosting && /cloudflare/i.test(currentHosting) ? "Cloudflare Queues where it fits the runtime" : "A simple durable queue appropriate to the host; avoid Kafka unless requirements justify it"],
+    [/object stor/, currentHosting && /aws/i.test(currentHosting) ? "Amazon S3" : currentHosting && /cloudflare/i.test(currentHosting) ? "Cloudflare R2" : "S3-compatible object storage"],
+    [/authentication provider|authentication platform|authentication:/, "Managed OIDC identity provider or a mature, actively maintained authentication library; do not build authentication protocols yourself"],
+    [/federation|oidc|saml/, "OIDC first; add SAML only for enterprise customers that actually require it"],
+    [/authorization engine|authorization:/, "Central application authorization layer using RBAC + contextual/ABAC checks, default deny"],
+    [/secrets store|secret store/, currentHosting && /aws/i.test(currentHosting) ? "AWS Secrets Manager" : currentHosting && /cloudflare/i.test(currentHosting) ? "Cloudflare secret bindings/secrets store for runtime secrets" : "A managed secret store supplied by the deployment platform"],
+    [/key store|kms/, currentHosting && /aws/i.test(currentHosting) ? "AWS KMS" : "Managed KMS/HSM-backed key service supplied by the deployment platform"],
+    [/reverse proxy|edge provider/, "Apache httpd is acceptable as a reverse proxy; Cloudflare may sit at the edge; document which layer terminates TLS and which headers are trusted"],
+    [/styling strategy/, "Tailwind CSS or another mainstream maintainable styling approach; keep design tokens explicit"],
+    [/component library/, "Accessible, well-maintained React components; avoid a large dependency unless the admin UI benefits from it"],
+    [/api style|primary api/, "REST/HTTP + JSON is the boring default; use OpenAPI as the machine-readable contract"],
+    [/schema standard/, "OpenAPI for REST APIs"],
+    [/identifier type|primary key type/, "UUID/ULID-style opaque identifiers unless measured DB/index requirements justify another choice"],
+    [/logging library/, "Structured JSON logging compatible with the chosen runtime/host"],
+    [/metrics backend|metrics library/, "OpenTelemetry-compatible instrumentation with the host's managed metrics backend where practical"],
+    [/tracing library|opentelemetry/, "OpenTelemetry; enable tracing where it materially helps distributed or external calls"],
+    [/ci provider/, "GitHub Actions if the repository is on GitHub; otherwise use the repository host's native CI"],
+    [/container runtime|base image/, "OCI/Docker-compatible container, minimal supported Node base image, non-root runtime user"],
+    [/deployment shape/, "Modular monolith first; split services only when operational or scaling boundaries justify it"],
+    [/primary region/, "Choose the region closest to users and required data residency; for NZ/AU users this is commonly an Australia/NZ-adjacent region when available"],
+    [/direct sql/, "Disabled by default in production; separate privilege, elevation, reason, limits and audit if enabled"],
+    [/status/, "APPROVED when chosen; DEFERRED only with a clear trigger; NOT APPLICABLE only when the capability genuinely does not apply"]
+  ];
+  for(const [rx,val] of suggestions) if(rx.test(s)) return val;
+  if(/version/i.test(label)) return "Pin a supported production version; prefer an LTS/current-supported release rather than 'latest'";
+  if(/provider/i.test(label)) return "Prefer a mature managed provider already native to the selected hosting platform unless portability outweighs the operational benefit";
+  if(/policy/i.test(label)) return "State the default rule, permitted exceptions, who may override it, and the failure behaviour";
+  if(/timeout/i.test(label)) return "Choose a finite conservative timeout; never leave external/database operations unbounded";
+  if(/retention/i.test(label)) return "Define an explicit duration based on operational, legal and privacy needs; avoid 'forever' by accident";
+  if(/owner/i.test(label)) return "Use a stable team/role name rather than a person's name where possible";
+  if(/path|location/i.test(label)) return "Use one stable repository path and keep it consistent with AGENT_CONTEXT_MAP.yaml";
+  if(/command/i.test(label)) return "Use one deterministic repository command that humans and agents can run without rediscovering flags";
+  return "";
+}
+
+function getBootstrapSuggestion(label,key,templateSuggestion){
+  if(templateSuggestion) return templateSuggestion;
+  const map={
+    project_name:"e.g. acme-platform",
+    cmd_setup:"e.g. npm ci",
+    cmd_start:"e.g. npm run dev",
+    cmd_stop:"Document the normal local stop command/process",
+    cmd_test_affected:"e.g. npm run test:affected",
+    cmd_test_full:"e.g. npm test",
+    cmd_lint:"e.g. npm run lint",
+    cmd_typecheck:"e.g. npm run typecheck",
+    cmd_migration_create:"Use the selected ORM/migration tool command",
+    cmd_migration_apply:"Use the selected ORM/migration tool production-safe command",
+    cmd_db_reset:"Development/test only — never a production-capable shortcut",
+    cmd_seed:"Deterministic baseline seed command",
+    cmd_scenario:"Named deterministic scenario loader",
+    cmd_build:"e.g. npm run build"
+  };
+  return map[key]||getSuggestion("Platform bootstrap",label);
+}
+
+function helpCategory(sectionTitle,label){
+  const s=(sectionTitle+" "+label).toLowerCase();
+  if(/authenticat|password|passkey|mfa|totp|webauthn/.test(s)) return "authentication";
+  if(/authoriz|permission|rbac|abac/.test(s)) return "authorization";
+  if(/session|cookie|revocation|elevation/.test(s)) return "session";
+  if(/database|postgres|sqlite|orm|query|migration|transaction|concurr|rls|tenant|schema|identifier/.test(s)) return "database";
+  if(/secret|kms|key management|crypt|tls|certificate/.test(s)) return "secrets";
+  if(/apache|reverse proxy|edge|waf|cors|csrf|csp|security header|rate limit|ssrf/.test(s)) return "edge";
+  if(/cloudflare|container|compute|hosting|aws|ecs|fargate|region|network|vpc/.test(s)) return "hosting";
+  if(/queue|worker|job|scheduler|outbox|event/.test(s)) return "async";
+  if(/object|blob|upload|file|malware|cdn/.test(s)) return "storage";
+  if(/logging|metric|trac|observability|error tracking|health|alert/.test(s)) return "observability";
+  if(/api|openapi|serialization|pagination|filter|http/.test(s)) return "api";
+  if(/frontend|next|react|css|styling|component|theme|browser|accessib/.test(s)) return "frontend";
+  if(/language|typescript|runtime|node|framework|package|repository|build/.test(s)) return "foundation";
+  if(/ci\b|cd\b|deployment|infrastructure as code|branch|review/.test(s)) return "delivery";
+  if(/backup|restore|disaster|rpo|rto/.test(s)) return "recovery";
+  return "general";
+}
+
+const CATEGORY_HELP = {
+  foundation:{
+    purpose:"This identifies one of the basic building blocks the whole codebase will stand on. Think of it as choosing the kind of timber, tools, and measurement system before building the house.",
+    why:"A foundational choice affects almost every developer and AI-agent task: syntax, available libraries, build commands, security patching, deployment, and how much context an agent must understand.",
+    watch:"Prefer mature, boring, strongly typed and well-documented technology. Pin supported versions. Avoid adding a second framework or language unless it buys something concrete.",
+    resources:["next","node","typescript"]
+  },
+  frontend:{
+    purpose:"This controls how the browser-facing application is rendered, styled, navigated and kept accessible.",
+    why:"A consistent frontend stack prevents every screen from inventing its own routing, form handling, styling and component conventions.",
+    watch:"Keep the browser as an untrusted client. Hiding a button is usability, not authorization. Prefer accessible components and avoid unnecessary client-side state.",
+    resources:["next","typescript","tailwind","owaspAsvs"]
+  },
+  database:{
+    purpose:"This describes how durable application data is represented, queried, migrated and protected.",
+    why:"Database decisions are hard to reverse after real data exists. They affect tenant isolation, transactions, concurrency, backups and operational recovery.",
+    watch:"For an internet-facing multi-user system, PostgreSQL is the conservative production default. SQLite is excellent when one process/instance owns the database, but its deployment assumptions must be explicit. An ORM must not become the security boundary.",
+    resources:["postgres","sqlite","prisma","drizzle"]
+  },
+  authentication:{
+    purpose:"Authentication answers: ‘Who are you, and how strongly have you proved it?’",
+    why:"If this boundary is wrong, every later permission check starts from an untrusted identity. Use mature protocols/libraries or a managed identity provider.",
+    watch:"Do not invent password protocols, MFA protocols or token formats casually. Privileged administration should require stronger/recent authentication than ordinary use.",
+    resources:["owaspAuth","webauthn","oidc","oauth"]
+  },
+  authorization:{
+    purpose:"Authorization answers: ‘Now that we know who you are, are you allowed to do this exact thing to this exact resource in this exact context?’",
+    why:"This is the main protection against privilege escalation and cross-tenant data access.",
+    watch:"Default deny. Enforce on the server. A role name alone is often not enough; tenant, organisation, resource ownership and current context can matter.",
+    resources:["owaspAuthz","owaspAsvs"]
+  },
+  session:{
+    purpose:"A session is the server’s continuing memory that a user has authenticated. This field decides how that memory is represented, expired and revoked.",
+    why:"A secure login is not enough if a stolen or stale session remains valid indefinitely.",
+    watch:"Require expiry and revocation. Renew session identifiers after privilege changes. Treat elevated/admin state as temporary.",
+    resources:["owaspSession","owaspAuth"]
+  },
+  secrets:{
+    purpose:"This decides where passwords-to-machines, API keys, signing keys and encryption keys live and how applications obtain them.",
+    why:"Secrets committed to source code or leaked into logs turn a code or logging exposure into credential compromise.",
+    watch:"Never put production secrets in source control, generated docs or ordinary configuration UI. Prefer workload identity and managed rotation where possible.",
+    resources:["awsSecrets","owaspSecrets"]
+  },
+  edge:{
+    purpose:"This describes the security and routing layers in front of the application: reverse proxy, TLS termination, request limits, headers and abuse controls.",
+    why:"Internet traffic is hostile by default. The edge reduces obvious abuse before traffic reaches application logic, while the application still enforces its own security.",
+    watch:"If Apache or Cloudflare sits in front of the app, explicitly define which forwarded headers are trusted and only trust them from the known proxy. Do not let a client forge the effective scheme, IP or host.",
+    resources:["apacheProxy","cloudflareContainers","owaspAsvs"]
+  },
+  hosting:{
+    purpose:"This decides where and how the running application gets CPU, memory, networking and isolation.",
+    why:"Hosting choices determine deployment complexity, scaling, secrets integration, failure modes and a large part of operating cost.",
+    watch:"Prefer managed, simple deployment before Kubernetes-scale machinery. Cloudflare Containers and AWS container services are both plausible; select based on required runtime behaviour, networking, regional needs and operational familiarity.",
+    resources:["cloudflareContainers","awsEcs","awsFargate","docker"]
+  },
+  async:{
+    purpose:"This controls work that should happen reliably outside the immediate web request, such as email, imports, retries and scheduled jobs.",
+    why:"Long or failure-prone work should not make a user wait or disappear when a process restarts.",
+    watch:"Assume messages can be delivered more than once. Build idempotent consumers, bounded retries and a dead-letter/recovery path.",
+    resources:["awsSqs","cloudflareQueues"]
+  },
+  storage:{
+    purpose:"This decides where files and binary objects live, separate from ordinary relational rows.",
+    why:"Uploads are untrusted data, can be large, and need independent access control, scanning and retention.",
+    watch:"Do not expose an object merely because somebody knows its ID or URL. Prefer private storage plus short-lived authorized access. Scan untrusted uploads where required.",
+    resources:["awsS3","cloudflareR2","owaspAsvs"]
+  },
+  observability:{
+    purpose:"This decides how humans can tell what the application is doing when nobody is looking directly at the code.",
+    why:"Without structured logs, metrics, tracing and health information, production failures turn into guesswork.",
+    watch:"Do not log secrets or unnecessary PII. Keep metric label cardinality bounded. Correlation IDs should connect requests, jobs and errors.",
+    resources:["otel","owaspAsvs"]
+  },
+  api:{
+    purpose:"This describes the stable language spoken between clients, services and the platform.",
+    why:"A consistent API contract reduces accidental coupling and lets humans and AI agents generate clients/tests from a known shape.",
+    watch:"Use bounded pagination, canonical errors, validation, idempotency where retries are possible, and safe versioning. Never expose stack traces in production.",
+    resources:["openapi","owaspAsvs"]
+  },
+  delivery:{
+    purpose:"This controls how code moves from source control into a tested, repeatable deployment.",
+    why:"Manual deployment steps become undocumented production dependencies. CI/CD should make the safe path the normal path.",
+    watch:"Protect production credentials, use least-privilege CI identity, coordinate migrations, and keep a recovery path for failed releases.",
+    resources:["githubActions","docker","owaspAsvs"]
+  },
+  recovery:{
+    purpose:"This decides how much data/time the organisation can afford to lose and how the service is restored after a serious failure.",
+    why:"A backup is only a theory until it has been restored successfully.",
+    watch:"Define RPO/RTO, encrypt backups, restrict access, and perform restore drills. Do not confuse application rollback with database rollback.",
+    resources:["postgres","awsS3"]
+  },
+  general:{
+    purpose:"This field records one explicit implementation decision so it does not get silently decided later inside code.",
+    why:"Making the value explicit gives humans and AI agents one stable fact to rely on and prevents repeated rediscovery.",
+    watch:"Choose the simplest value that satisfies the canonical contracts. If the decision is genuinely not needed yet, defer it with a trigger instead of guessing.",
+    resources:["owaspAsvs"]
+  }
+};
+
+function relatedContext(){
+  const picks=[
+    ["Language",valueByConcept(/Primary Programming Language.*Backend Language|Primary Programming Language.*Frontend Language/i)],
+    ["Backend",valueByConcept(/Backend Framework.*Framework/i)],
+    ["Database",valueByConcept(/Database Engine.*Database/i)],
+    ["Hosting",valueByConcept(/Infrastructure Hosting.*Provider/i)],
+    ["Auth",valueByConcept(/Authentication Platform.*Provider|Authentication Platform.*Library/i)]
+  ].filter(([,v])=>v);
+  return picks.slice(0,5);
+}
+
+
+function normalizedFieldKey(sectionTitle,label){
+  return `${sectionTitle} :: ${label}`.toLowerCase().replace(/\s+/g," ").trim();
+}
+
+function fieldDocKeys(sectionTitle,label){
+  const s=normalizedFieldKey(sectionTitle,label);
+  const keys=[];
+
+  if(/next|frontend framework|backend framework|rendering model|app router/.test(s)) keys.push("next");
+  if(/node|runtime/.test(s)) keys.push("node");
+  if(/typescript|primary language|backend language|frontend language/.test(s)) keys.push("typescript");
+  if(/postgres|database engine|database hosting|relational integrity|rls|read replica/.test(s)) keys.push("postgres");
+  if(/sqlite/.test(s)) keys.push("sqlite");
+  if(/prisma|orm|data access|migration tool/.test(s)) keys.push("prisma","drizzle");
+  if(/drizzle/.test(s)) keys.push("drizzle");
+  if(/tailwind|styling strategy|css|design tokens/.test(s)) keys.push("tailwind");
+  if(/apache|reverse proxy/.test(s)) keys.push("apacheProxy");
+  if(/cloudflare|r2|queues|container/.test(s)) keys.push("cloudflareContainers","cloudflareR2","cloudflareQueues");
+  if(/\baws\b|ecs|fargate/.test(s)) keys.push("awsEcs","awsFargate");
+  if(/secret|credential/.test(s)) keys.push("owaspSecrets","awsSecrets");
+  if(/kms|cryptographic key|encryption key|signing key/.test(s)) keys.push("owaspSecrets");
+  if(/authentication|password|mfa|totp|passkey|webauthn|account recovery/.test(s)) keys.push("owaspAuth","webauthn");
+  if(/federation|oidc|openid/.test(s)) keys.push("oidc","oauth");
+  if(/authorization|permission|rbac|abac|role management/.test(s)) keys.push("owaspAuthz");
+  if(/session|cookie|revocation|refresh/.test(s)) keys.push("owaspSession");
+  if(/api|openapi|schema standard|serialization|pagination|filtering|sorting/.test(s)) keys.push("openapi");
+  if(/logging|metrics|tracing|observability|correlation/.test(s)) keys.push("otel");
+  if(/ci provider|github actions/.test(s)) keys.push("githubActions");
+  if(/container runtime|base image|image registry/.test(s)) keys.push("docker");
+  if(/object storage|s3|bucket|presigned/.test(s)) keys.push("awsS3","cloudflareR2");
+  if(/queue|sqs|worker|dead letter|dlq/.test(s)) keys.push("awsSqs","cloudflareQueues");
+  if(/cookie/.test(s)) keys.push("mdnCookies");
+  if(/cors/.test(s)) keys.push("mdnCors");
+  if(/csp|content security policy/.test(s)) keys.push("mdnCsp");
+  if(/http client|http semantics|status code/.test(s)) keys.push("rfc9110");
+  if(/timezone|time zone/.test(s)) keys.push("ianaTimezones");
+  if(/currency|money/.test(s)) keys.push("iso4217");
+  if(/accessibility|wcag|keyboard|contrast/.test(s)) keys.push("wcag");
+  if(/json schema|validation schema/.test(s)) keys.push("jsonSchema");
+  if(/row level security|rls|tenant isolation/.test(s)) keys.push("postgresRls");
+  if(/backup|restore/.test(s)) keys.push("postgresBackup");
+  if(/container security/.test(s)) keys.push("dockerSecurity");
+
+  if(!keys.length) keys.push("owaspAsvs");
+  return keys;
+}
+
+const EXACT_FIELD_HELP = {
+  "executive technology summary :: primary language(s)": {
+    purpose:"State the main programming language family used by the product code. This is the fastest way for a human or AI agent to know what syntax, type system, compiler/tooling, package ecosystem and coding conventions to expect.",
+    need:"Without this, agents may generate mixed JavaScript/TypeScript or even introduce another language simply because a library example used it. A single declared default reduces context and dependency sprawl.",
+    values:["TypeScript","TypeScript for application code; SQL only where explicitly required","TypeScript + a narrowly scoped secondary language only if a concrete subsystem requires it"],
+    recommendation:"TypeScript, with strict type-checking enabled. For the environment you described, this is the lowest-friction default for Next.js/Node.js and is particularly AI-friendly.",
+    pitfalls:["Do not write “JavaScript/TypeScript” if TypeScript is actually mandatory; that creates ambiguity.","Do not add Python, Go, Rust, etc. merely for a helper script unless the benefit clearly outweighs another toolchain."]
+  },
+  "executive technology summary :: backend framework": {
+    purpose:"Name the framework that receives server-side requests and structures backend application code.",
+    need:"This determines routing, middleware, server-side validation integration, dependency boundaries, error handling and much of the testing/deployment model.",
+    values:["Next.js App Router server capabilities","Fastify","NestJS","Hono"],
+    recommendation:"If one deployable web application is sufficient, prefer Next.js App Router rather than introducing a second backend framework. Add a dedicated API framework only when a real boundary justifies it.",
+    pitfalls:["Avoid choosing a second server framework merely because it is fashionable.","Do not assume framework middleware replaces the platform authorization contract."]
+  },
+  "executive technology summary :: frontend framework": {
+    purpose:"Name the framework responsible for the browser UI, routing, rendering and client/server component model.",
+    need:"A fixed frontend model stops different agents inventing competing routing, state-management and rendering patterns.",
+    values:["Next.js + React","React with a separate router/build system"],
+    recommendation:"Next.js with React is the natural default if the backend is also Next.js.",
+    pitfalls:["Avoid introducing a second SPA framework.","Client-side routing and hidden controls must never be treated as security."]
+  },
+  "executive technology summary :: runtime": {
+    purpose:"State the server runtime that actually executes the application, including its support/version policy.",
+    need:"Framework compatibility, native APIs, package compatibility, security patches and hosting all depend on this.",
+    values:["Current supported Node.js LTS","A specifically pinned supported Node.js major version"],
+    recommendation:"Use a current supported Node.js LTS line and pin the major/minor policy in the project specification rather than saying only “latest”.",
+    pitfalls:["Do not rely on whichever Node version happens to be installed on a developer workstation.","Production and CI must agree on the supported runtime."]
+  },
+  "executive technology summary :: database": {
+    purpose:"Name the primary transactional database that owns authoritative application records.",
+    need:"The database is one of the hardest technology choices to reverse after real data exists. Transactions, tenant isolation, concurrency, migration strategy, backup and restore all depend on it.",
+    values:["PostgreSQL","SQLite for local/single-instance use where its deployment model is genuinely sufficient"],
+    recommendation:"For an internet-facing multi-user production system, PostgreSQL is the conservative default. Use SQLite where its single-writer/single-host operational model is intentionally appropriate, not merely because setup is easy.",
+    pitfalls:["Do not pick SQLite for production without explicitly validating concurrency, backup and multi-instance requirements.","Do not treat the ORM as a replacement for database constraints."]
+  },
+  "executive technology summary :: orm / data access": {
+    purpose:"Name the library and pattern that turns typed application operations into database queries.",
+    need:"A standard data-access layer keeps transaction handling, tenant scoping, parameterization, migrations and query conventions consistent across agents.",
+    values:["Drizzle ORM","Prisma ORM","A narrow query-builder/repository abstraction"],
+    recommendation:"Evaluate Drizzle and Prisma against the actual requirements: migration control, transactions, raw SQL escape hatches, query observability and tenant/RLS integration. Choose one; do not use both casually.",
+    pitfalls:["The ORM must not become the authorization boundary.","Avoid hidden N+1 queries and opaque generated SQL in high-volume paths."]
+  },
+  "executive technology summary :: migration tool": {
+    purpose:"Name the mechanism that records database schema changes and applies them predictably between versions.",
+    need:"Production databases cannot be recreated from scratch every deployment. Migration history is how schema evolution becomes repeatable and reviewable.",
+    values:["Drizzle Kit migrations","Prisma Migrate","Framework-independent SQL migrations"],
+    recommendation:"Prefer the migration system belonging to the selected data-access stack if it supports locking, forward migrations and controlled production execution.",
+    pitfalls:["Do not assume every migration is safely reversible.","Do not auto-run destructive production migrations without deployment coordination."]
+  },
+  "executive technology summary :: cache": {
+    purpose:"State whether the platform uses a cache and, if so, which technology.",
+    need:"Caching adds invalidation, consistency and operational complexity. Recording “none” is as important as recording a product choice.",
+    values:["None initially","Redis/Valkey","A managed host-native cache"],
+    recommendation:"None initially. Add a cache only after a measured latency/load need or a specific distributed coordination requirement appears.",
+    pitfalls:["Do not cache authorization decisions casually.","Do not introduce Redis simply because many architectures contain Redis."]
+  },
+  "executive technology summary :: queue / worker": {
+    purpose:"Name the durable queue and worker mechanism used for background work that should survive request completion or process restarts.",
+    need:"Email, imports, exports, retries and long-running tasks need durable execution outside the request path.",
+    values:["AWS SQS + worker service","Cloudflare Queues + consumer","Database-backed queue for a deliberately simple deployment"],
+    recommendation:"Choose the simplest durable mechanism native to the selected host. Assume at-least-once delivery and make consumers idempotent.",
+    pitfalls:["Do not rely on in-memory background tasks for required durable work.","Do not choose Kafka for ordinary job processing unless event-stream semantics are actually required."]
+  },
+  "executive technology summary :: object storage": {
+    purpose:"Name the service used for uploaded files and other binary objects that should not live as large blobs inside ordinary relational rows.",
+    need:"Files have different scaling, streaming, retention, authorization and malware-scanning needs from normal database records.",
+    values:["Amazon S3","Cloudflare R2","Another mature S3-compatible private object store"],
+    recommendation:"Use the object-storage service native to the hosting environment unless portability requirements justify an S3-compatible abstraction.",
+    pitfalls:["Keep objects private by default.","Knowing an object key must not grant access; use authorized short-lived URLs or server-mediated access."]
+  },
+  "executive technology summary :: authentication": {
+    purpose:"Name the concrete provider/library used to prove user identity.",
+    need:"Authentication is a high-risk security boundary. The project should depend on mature implementations of established protocols rather than inventing credential/token mechanics.",
+    values:["Managed OIDC identity provider","A mature Next.js/Node authentication library with passkey/MFA support"],
+    recommendation:"Prefer a mature managed identity provider or actively maintained library that supports MFA/passkeys and clean session revocation. Avoid custom authentication protocol code.",
+    pitfalls:["Password storage, recovery and MFA must follow current guidance.","Do not let authentication success imply authorization."]
+  },
+  "executive technology summary :: federation": {
+    purpose:"State whether enterprise/customer identity providers can sign users in and which federation standards are supported.",
+    need:"If customers later require corporate SSO, a declared federation approach avoids proprietary integrations per customer.",
+    values:["OIDC only initially","OIDC + SAML when required","None initially, explicitly deferred"],
+    recommendation:"OIDC first. Add SAML only when a concrete enterprise requirement appears.",
+    pitfalls:["Do not map external claims directly to powerful internal roles without server-side validation.","Account linking must avoid takeover through email/claim collisions."]
+  },
+  "executive technology summary :: authorization": {
+    purpose:"Name the mechanism that decides whether an authenticated subject may perform an action on a resource in the current tenant/context.",
+    need:"This is the core enforcement layer protecting tenant data and privileged operations.",
+    values:["In-process policy layer implementing RBAC + contextual checks","A dedicated policy engine if complexity later warrants it"],
+    recommendation:"Start with a centralized in-process authorization service implementing the canonical Subject + Action + Resource + Context contract, default deny.",
+    pitfalls:["Never enforce permissions only in UI.","Do not scatter ad-hoc role-name checks throughout handlers."]
+  },
+  "executive technology summary :: secrets store": {
+    purpose:"Name the protected service that supplies runtime secrets such as API keys, DB credentials and signing secrets.",
+    need:"Secrets in source code, `.env` files copied around manually, or generated documentation create avoidable compromise paths.",
+    values:["AWS Secrets Manager","Cloudflare runtime secrets/bindings","A managed Vault/secret manager"],
+    recommendation:"Use the hosting platform's managed secret facility where practical and keep production secrets out of source, logs and generated project docs.",
+    pitfalls:["Do not expose secret values through config/admin UI.","Separate development/test/staging/production secrets."]
+  }
+};
+
+const LABEL_HELP_RULES = [
+  {
+    rx:/^version$/i,
+    purpose:(s,l)=>`Record the supported version for ${s}.`,
+    need:(s,l)=>`Version pinning prevents CI, developers and AI agents from silently using different releases of ${s}, which can create incompatible APIs or security behavior.`,
+    values:(s,l)=>["Exact supported major version","A documented LTS/support-range policy"],
+    recommendation:(s,l)=>"Pin a currently supported production release and define how upgrades are approved.",
+    pitfalls:["Avoid unqualified “latest”.","Do not remain on an end-of-life release because upgrades were never assigned an owner."]
+  },
+  {
+    rx:/provider/i,
+    purpose:(s,l)=>`Name the concrete external or managed provider that supplies “${l}” for ${s}.`,
+    need:(s,l)=>`The provider determines credentials, availability model, cost, rate limits, regional availability and vendor lock-in for this capability.`,
+    values:(s,l)=>["Hosting-platform native managed service","A mature portable provider with a documented adapter"],
+    recommendation:(s,l)=>"Prefer a mature managed provider already native to the chosen host unless portability materially outweighs the operational benefit.",
+    pitfalls:["Do not let provider SDK types leak through platform contracts.","Document an exit/export strategy for material vendor lock-in."]
+  },
+  {
+    rx:/policy/i,
+    purpose:(s,l)=>`Define the explicit rule for “${l}” in ${s}: the normal case, allowed exceptions and what happens when the rule cannot be evaluated.`,
+    need:(s,l)=>`A policy field exists because leaving behavior implicit causes different code paths and agents to invent different answers.`,
+    values:(s,l)=>["Default rule + explicit exceptions + failure behavior","Default deny/restrictive behavior for security-sensitive policy"],
+    recommendation:(s,l)=>"Write the default first, then exceptions, then who may authorize an exception.",
+    pitfalls:["Avoid vague words such as “appropriate” without criteria.","Security-policy failure should not silently become permissive."]
+  },
+  {
+    rx:/strategy/i,
+    purpose:(s,l)=>`Describe the chosen implementation approach for “${l}” in ${s}, not merely a product name.`,
+    need:(s,l)=>`A strategy explains how the mechanism behaves and what trade-off is accepted, which survives even if the underlying vendor changes.`,
+    values:(s,l)=>["Simple default approach","A deliberately more advanced approach justified by a measured requirement"],
+    recommendation:(s,l)=>"Choose the least complex strategy that satisfies the canonical contract and state what would trigger reconsideration.",
+    pitfalls:["Do not hide architectural complexity behind a product name.","Avoid speculative future-proofing without a requirement."]
+  },
+  {
+    rx:/timeout/i,
+    purpose:(s,l)=>`Set the maximum time allowed for “${l}” before the operation is considered failed or cancelled.`,
+    need:(s,l)=>`Finite timeouts stop one failed dependency from consuming threads, connections or worker capacity indefinitely.`,
+    values:(s,l)=>["A conservative finite default","A smaller value for interactive requests and a larger bounded value for background work"],
+    recommendation:(s,l)=>"Choose a finite value based on the operation class and measure it in production; never rely on infinite defaults.",
+    pitfalls:["Timeout and retry together can multiply load.","A timeout should produce an observable failure, not silent abandonment."]
+  },
+  {
+    rx:/retention/i,
+    purpose:(s,l)=>`State how long data covered by “${l}” is retained and what happens when the period expires.`,
+    need:(s,l)=>`Retention affects storage cost, privacy exposure, audit/legal needs and the ability to recover or investigate incidents.`,
+    values:(s,l)=>["Explicit duration by data class","Separate hot retention and archival retention where justified"],
+    recommendation:(s,l)=>"Choose the minimum duration that satisfies operational, legal and security needs; avoid accidental indefinite retention.",
+    pitfalls:["Audit, backup and privacy retention may have different rules.","Deletion must respect legal hold where applicable."]
+  },
+  {
+    rx:/owner/i,
+    purpose:(s,l)=>`Assign responsibility for “${l}” in ${s}.`,
+    need:(s,l)=>`Unowned technology silently ages: patches are missed, alerts are ignored and nobody knows who approves breaking changes.`,
+    values:(s,l)=>["A stable team name","A durable engineering role"],
+    recommendation:(s,l)=>"Prefer a team/role over a person's name so ownership survives staff changes.",
+    pitfalls:["Ownership should include operational responsibility, not just code authorship."]
+  },
+  {
+    rx:/path|location/i,
+    purpose:(s,l)=>`Record the canonical repository/runtime location for “${l}” in ${s}.`,
+    need:(s,l)=>`Stable paths reduce AI search cost and prevent duplicate implementations in multiple directories.`,
+    values:(s,l)=>["One canonical repository path","One generated path plus a documented source path where appropriate"],
+    recommendation:(s,l)=>"Pick one stable path and mirror it in the capability registry/context map.",
+    pitfalls:["Do not create aliases or duplicate directories without a reason.","Generated paths should be clearly distinguished from authoritative source paths."]
+  },
+  {
+    rx:/command/i,
+    purpose:(s,l)=>`Record the exact deterministic command used for “${l}”.`,
+    need:(s,l)=>`Agents and developers should not repeatedly rediscover flags or invoke subtly different workflows.`,
+    values:(s,l)=>["One package-script command","One wrapper command that hides tool-specific flags"],
+    recommendation:(s,l)=>"Expose a short stable repository command even if it delegates to a longer underlying tool invocation.",
+    pitfalls:["Commands should work from a documented working directory.","Do not encode secrets directly in command lines."]
+  },
+  {
+    rx:/enabled environments|enabled environments:/i,
+    purpose:(s,l)=>`List exactly which runtime environments are permitted to enable this capability.`,
+    need:(s,l)=>`Development conveniences and dangerous operator tools must not accidentally become production features.`,
+    values:(s,l)=>["development only","development + controlled staging","production only with explicit elevation/feature gate where the capability is operationally necessary"],
+    recommendation:(s,l)=>"Use the narrowest environment set that still supports the operational need.",
+    pitfalls:["Environment identity must come from trusted deployment configuration.","Do not allow a request parameter or UI switch to turn development mode on."]
+  }
+];
+
+const SECTION_HELP_RULES = [
+  {
+    rx:/Primary Programming Language/i,
+    purpose:(s,l)=>`“${l}” defines part of the language/runtime contract for the codebase.`,
+    need:(s,l)=>`Language consistency directly affects type safety, package compatibility, AI generation quality and the number of toolchains the team must maintain.`,
+    values:["TypeScript","Strict TypeScript"],
+    recommendation:"For this expected stack, prefer strict TypeScript unless the field is explicitly asking for a secondary/support language.",
+    pitfalls:["Avoid multiple primary languages without a concrete subsystem boundary."]
+  },
+  {
+    rx:/Runtime/i,
+    purpose:(s,l)=>`“${l}” defines how the selected runtime is versioned, supported and patched.`,
+    need:(s,l)=>`The runtime is beneath the framework; if it changes unexpectedly, framework and dependency behavior can change underneath the application.`,
+    values:["Current Node.js LTS","Pinned supported Node.js major"],
+    recommendation:"Prefer a supported Node.js LTS and make CI/containers enforce it.",
+    pitfalls:["Do not let developer-local runtime versions define production behavior."]
+  },
+  {
+    rx:/Backend Framework/i,
+    purpose:(s,l)=>`“${l}” records how the backend framework will provide or constrain this aspect of server behavior.`,
+    need:(s,l)=>`Server conventions need to be consistent so routes, validation, dependency boundaries and tests do not vary by agent.`,
+    values:["Next.js App Router server model","Dedicated Node framework only if justified"],
+    recommendation:"Prefer one framework for the deployable application until a real separation requirement appears.",
+    pitfalls:["Framework convenience must not override platform contracts."]
+  },
+  {
+    rx:/Frontend Framework|Frontend Styling|Accessibility|Browser Support|Theme/i,
+    purpose:(s,l)=>`“${l}” controls one specific part of the browser/UI implementation.`,
+    need:(s,l)=>`Consistent UI conventions reduce duplicate CSS/state/routing patterns and improve accessibility and maintainability.`,
+    values:["Next.js/React conventions","Tailwind CSS where selected","WCAG-aligned accessible components"],
+    recommendation:"Use mainstream, accessible, well-maintained UI tooling and keep authorization entirely server-side.",
+    pitfalls:["Avoid styling/component stacks that fight the selected framework.","Do not use UI visibility as a security control."]
+  },
+  {
+    rx:/Repository Structure|Package and Dependency|Branching|Code Review|Source Repository/i,
+    purpose:(s,l)=>`“${l}” defines how source code and changes are organised and governed.`,
+    need:(s,l)=>`Repository structure and review rules are core AI-cost controls: they determine how easily agents locate authority and how safely changes cross protected boundaries.`,
+    values:["Monorepo/modular-monolith layout","Protected main branch + pull requests","Lockfile committed"],
+    recommendation:"Prefer one repository and obvious module boundaries unless independent deployment genuinely requires more.",
+    pitfalls:["Do not split repositories just to mirror conceptual modules.","Keep generated and canonical artifacts visually distinct."]
+  },
+  {
+    rx:/API Protocol|API Schema|API Lifecycle|Pagination|Serialization|Error/i,
+    purpose:(s,l)=>`“${l}” defines one part of the public/internal API contract.`,
+    need:(s,l)=>`Stable API rules prevent every endpoint from inventing its own errors, pagination, serialization or versioning behavior.`,
+    values:["REST/HTTP + JSON","OpenAPI","Bounded cursor/page pagination"],
+    recommendation:"REST/JSON with OpenAPI is the conservative default for this platform unless a specific requirement justifies another protocol.",
+    pitfalls:["Avoid unbounded collection endpoints.","Do not expose internal exception details."]
+  },
+  {
+    rx:/Database Engine|Data Access Layer|Database Naming|Identifier Strategy|Migration|Transaction|Concurrency|Tenant Isolation|Organization Hierarchy|Database Connection/i,
+    purpose:(s,l)=>`“${l}” defines a specific persistence behavior that must remain predictable under concurrency, tenancy and schema change.`,
+    need:(s,l)=>`Persistence choices affect data integrity, tenant isolation, performance and recoverability; ambiguity here becomes expensive after production data exists.`,
+    values:["PostgreSQL","Drizzle or Prisma","UUID/ULID","forward migrations","optimistic concurrency token"],
+    recommendation:"Bias toward PostgreSQL + one mature TypeScript data-access layer, with database constraints and explicit tenant scoping.",
+    pitfalls:["Do not depend on application checks alone for critical data integrity.","Treat RLS as defense in depth rather than the only tenant boundary."]
+  },
+  {
+    rx:/Authorization Engine|Permission|Role Management|Privilege|Impersonation/i,
+    purpose:(s,l)=>`“${l}” defines one part of how permissions and privileged identity are represented or enforced.`,
+    need:(s,l)=>`Authorization mistakes cause privilege escalation and cross-tenant exposure; the model must be centralized and explicit.`,
+    values:["RBAC + contextual ABAC checks","Explicit elevation token/state","True actor + effective actor for impersonation"],
+    recommendation:"Default deny, server-side enforcement, explicit tenant/resource context, and temporary elevation for dangerous actions.",
+    pitfalls:["Do not authorize from client-supplied role/tenant claims without server validation.","Do not let tenant-admin imply platform-admin."]
+  },
+  {
+    rx:/Authentication Platform|Identity Federation|Session|MFA|Password|Account Linking|Email Verification|Phone Verification/i,
+    purpose:(s,l)=>`“${l}” defines one concrete part of proving identity and maintaining authentication state.`,
+    need:(s,l)=>`Authentication is a chain: enrollment, login, MFA, recovery, sessions and linking must all resist account takeover.`,
+    values:["Managed OIDC provider","WebAuthn/passkeys","TOTP MFA","server-revocable sessions"],
+    recommendation:"Use standardized, mature authentication mechanisms and stronger/recent auth for privileged operations.",
+    pitfalls:["Do not invent cryptographic authentication protocols.","Recovery paths must be as secure as primary login."]
+  },
+  {
+    rx:/Secrets Management|Cryptographic Key|TLS|Encryption|Cloud IAM|Administrative Access Path|Break-Glass/i,
+    purpose:(s,l)=>`“${l}” defines how a high-value credential, key or privileged access path is protected.`,
+    need:(s,l)=>`These controls limit the blast radius if source code, an operator account or a workload is compromised.`,
+    values:["AWS Secrets Manager/KMS","Cloudflare secret bindings","short-lived workload identity","MFA-protected admin access"],
+    recommendation:"Prefer managed secret/key stores and short-lived identity over long-lived copied credentials.",
+    pitfalls:["Never put secrets in generated documentation.","Break-glass must be exceptional, time-bounded and audited."]
+  },
+  {
+    rx:/Reverse Proxy|Application Security|CSP|Rate Limit|Abuse|Network Egress|Networking/i,
+    purpose:(s,l)=>`“${l}” defines a concrete control at the network/application boundary.`,
+    need:(s,l)=>`An internet-facing system must assume malformed and malicious traffic; these controls bound exposure before and during application processing.`,
+    values:["Apache reverse proxy with explicit trusted-header policy","Cloudflare edge protection","strict CSP","rate limits on auth/admin"],
+    recommendation:"Use defense in depth: edge controls plus application validation/authorization. Explicitly document proxy trust.",
+    pitfalls:["Never trust X-Forwarded-* from arbitrary clients.","Do not treat a WAF as a substitute for secure application logic."]
+  },
+  {
+    rx:/Audit/i,
+    purpose:(s,l)=>`“${l}” defines how security/accountability events are recorded, protected or retained.`,
+    need:(s,l)=>`Audit evidence must survive ordinary application mutation and identify who performed important actions under which context.`,
+    values:["append-only DB/table with separate permissions","transactional outbox to immutable sink","selected before/after diffs"],
+    recommendation:"Keep audit append-only from ordinary app paths, minimize PII, and strengthen immutability for high-assurance environments.",
+    pitfalls:["Logs are not a substitute for audit.","Avoid universal full-record snapshots containing unnecessary sensitive data."]
+  },
+  {
+    rx:/Outbox|Event Publication|Message Queue|Background Worker|Scheduled Jobs|Retry|Messaging Semantics|Circuit Breaker/i,
+    purpose:(s,l)=>`“${l}” defines one reliability characteristic of asynchronous or external work.`,
+    need:(s,l)=>`Networks and workers fail. Explicit delivery, retry and idempotency rules keep failures from becoming lost or duplicated business effects.`,
+    values:["transactional outbox","at-least-once delivery","exponential backoff + jitter","DLQ"],
+    recommendation:"Assume duplicate delivery, bound retries, persist required work before acknowledging success.",
+    pitfalls:["Do not promise exactly-once processing unless the complete effect is actually transactional/idempotent.","Retries must not amplify outages."]
+  },
+  {
+    rx:/Object Storage|Malware|Image Processing|CDN|Large File|File Processing/i,
+    purpose:(s,l)=>`“${l}” defines one part of storing, validating or serving untrusted file content.`,
+    need:(s,l)=>`Files are large, user-controlled and often executable by client software; they need stronger isolation than ordinary text fields.`,
+    values:["private S3/R2","quarantine + malware scan","short-lived signed URLs","separate asset origin"],
+    recommendation:"Private object storage with explicit authorization and scan/quarantine flow is the safe default.",
+    pitfalls:["File extension is not trustworthy MIME validation.","Scanner failure should not publish an unscanned protected upload."]
+  },
+  {
+    rx:/Configuration Storage|Feature Flag|Kill Switch|Config/i,
+    purpose:(s,l)=>`“${l}” defines how runtime behavior can be configured without source edits.`,
+    need:(s,l)=>`Configuration needs deterministic precedence, validation and audit; feature flags need safe defaults and must not become authorization.`,
+    values:["typed DB-backed settings","environment-specific deployment config","internal feature flag table initially"],
+    recommendation:"Keep secrets separate from ordinary settings; use explicit typed definitions and deterministic resolution.",
+    pitfalls:["Do not use feature flags to grant permissions.","Avoid hidden environment behavior controlled by arbitrary database booleans."]
+  },
+  {
+    rx:/Time Library|Timezone|Internationalization|Money|Unicode/i,
+    purpose:(s,l)=>`“${l}” defines one representation/formatting rule that prevents silent data corruption across locales and time zones.`,
+    need:(s,l)=>`Time, currency and text bugs often look correct in development and fail only for other locales, DST boundaries or financial calculations.`,
+    values:["UTC instants + IANA timezone","UTF-8","decimal money + ISO 4217"],
+    recommendation:"Use explicit value types and mature locale/timezone data; never use binary floating point for authoritative money.",
+    pitfalls:["Calendar dates are not instants.","Do not silently add different currencies."]
+  },
+  {
+    rx:/Logging|Metrics|Tracing|Error Tracking|Health|Dashboard|Alerting|Observability/i,
+    purpose:(s,l)=>`“${l}” defines how operators observe one specific aspect of the running platform.`,
+    need:(s,l)=>`Production operation without observable state becomes code archaeology under pressure.`,
+    values:["structured JSON logs","OpenTelemetry","managed metrics/error backend","liveness + readiness"],
+    recommendation:"Prefer OpenTelemetry-compatible instrumentation and host-native managed backends where economical.",
+    pitfalls:["Do not log secrets/PII indiscriminately.","Health endpoints should not leak infrastructure details."]
+  },
+  {
+    rx:/Infrastructure Hosting|Region|Compute|Containers|Orchestration|Database Hosting|DNS|High Availability|Scalability|Performance|Resource Limits/i,
+    purpose:(s,l)=>`“${l}” captures one concrete deployment/scale assumption for the running system.`,
+    need:(s,l)=>`Without explicit scale and hosting assumptions, teams either underbuild critical capacity or over-engineer for imaginary internet scale.`,
+    values:["managed single-region deployment","AWS ECS/Fargate","Cloudflare Containers where fit","managed PostgreSQL"],
+    recommendation:"Start with the simplest managed deployment meeting security/recovery needs; add orchestration/multi-region only when required.",
+    pitfalls:["Do not introduce Kubernetes merely as a default.","Use realistic initial scale estimates, not undefined “internet scale”."]
+  },
+  {
+    rx:/Backup|Restore|Disaster Recovery/i,
+    purpose:(s,l)=>`“${l}” defines one part of how the platform recovers data or service after loss/failure.`,
+    need:(s,l)=>`Backups only matter if they can be restored within the business's acceptable loss/time window.`,
+    values:["automated encrypted DB backups","point-in-time recovery","documented RPO/RTO","regular restore drill"],
+    recommendation:"Managed backups + tested restores; define RPO/RTO explicitly before calling production ready.",
+    pitfalls:["A successful backup job is not proof of recoverability.","Do not store recovery credentials only inside the failed environment."]
+  },
+  {
+    rx:/CI Platform|CD Platform|Infrastructure as Code|Local Development|Test Environment|Staging|Production|Unit Testing|Integration Testing|End-to-End|Contract Testing|Security Testing|Architecture Fitness/i,
+    purpose:(s,l)=>`“${l}” defines one repeatable engineering or verification mechanism.`,
+    need:(s,l)=>`Stable commands/environments reduce agent iteration cost and turn architecture/security claims into reproducible evidence.`,
+    values:["GitHub Actions","Docker/local service containers","Vitest/Jest","Playwright","IaC such as Terraform/OpenTofu/CDK where appropriate"],
+    recommendation:"Automate cheap checks early, affected tests on change, broader suites at merge/release gates.",
+    pitfalls:["Do not run the entire test universe after every trivial edit.","A flaky test is a defect, not permission to rerun until green."]
+  },
+  {
+    rx:/AI Coding Environment|AI Context Strategy|AI Cost Controls|Agent Handover/i,
+    purpose:(s,l)=>`“${l}” defines how AI agents obtain exactly enough context to work safely without repeatedly rereading the repository.`,
+    need:(s,l)=>`Agent cost is roughly model cost × context size × iterations. Stable routing and commands directly reduce recurring spend.`,
+    values:["AGENTS.md + context map","capability registry","contract-first reads","affected-test routing"],
+    recommendation:"Make routine tasks start from tiny agent files and load architecture/security only when triggered.",
+    pitfalls:["Do not recursively follow every documentation link.","Do not spawn sub-agents just to restate already-authoritative material."]
+  },
+  {
+    rx:/Data Inspector/i,
+    purpose:(s,l)=>`“${l}” defines one specific capability or safety boundary of the privileged database inspection/repair tool.`,
+    need:(s,l)=>`The Data Inspector is intentionally powerful and can bypass normal workflows, so every privilege, limit and environment rule must be explicit.`,
+    values:["read/mutate/sql permissions separated","production MFA/elevation","row/time limits","mask sensitive fields"],
+    recommendation:"Development can be convenient; production must have a much heavier security door.",
+    pitfalls:["Tenant admin must not imply database access.","Direct SQL should be production-disabled by default."]
+  }
+];
+
+function deriveFieldHelp(sectionTitle,label){
+  const exact=EXACT_FIELD_HELP[normalizedFieldKey(sectionTitle,label)];
+  if(exact) return {...exact, source:"exact"};
+
+  for(const rule of LABEL_HELP_RULES){
+    if(rule.rx.test(label)){
+      return {
+        purpose:typeof rule.purpose==="function"?rule.purpose(sectionTitle,label):rule.purpose,
+        need:typeof rule.need==="function"?rule.need(sectionTitle,label):rule.need,
+        values:typeof rule.values==="function"?rule.values(sectionTitle,label):rule.values,
+        recommendation:typeof rule.recommendation==="function"?rule.recommendation(sectionTitle,label):rule.recommendation,
+        pitfalls:rule.pitfalls||[],
+        source:"label"
+      };
+    }
+  }
+
+  for(const rule of SECTION_HELP_RULES){
+    if(rule.rx.test(sectionTitle)){
+      const basePurpose=typeof rule.purpose==="function"?rule.purpose(sectionTitle,label):rule.purpose;
+      const baseNeed=typeof rule.need==="function"?rule.need(sectionTitle,label):rule.need;
+      return {
+        purpose:`${basePurpose} Specifically, this field asks you to record “${label}”.`,
+        need:`${baseNeed} Leaving “${label}” undefined would force a later engineer or agent to decide it implicitly.`,
+        values:typeof rule.values==="function"?rule.values(sectionTitle,label):rule.values,
+        recommendation:typeof rule.recommendation==="function"?rule.recommendation(sectionTitle,label):rule.recommendation,
+        pitfalls:rule.pitfalls||[],
+        source:"section"
+      };
+    }
+  }
+
+  // Unique fallback: it is intentionally still tied to BOTH the section and label.
+  return {
+    purpose:`In the “${sectionTitle}” decision, “${label}” records the concrete implementation answer for this one sub-decision.`,
+    need:`The Blank template asks for “${label}” because otherwise that behavior would be left to whichever developer, framework default or AI agent touches “${sectionTitle}” first. Recording it here turns an accidental choice into an explicit project fact.`,
+    values:["The simplest mature option that satisfies the relevant platform contract","DEFERRED with an explicit trigger if the decision is not yet required","NOT APPLICABLE only when the capability genuinely does not apply"],
+    recommendation:`Choose the least complex answer that preserves the canonical architecture and security model. If there is no real requirement yet, defer it explicitly rather than speculating.`,
+    pitfalls:[`Do not copy a value from another project without checking whether “${label}” has the same constraints here.`,`Do not introduce a new vendor/library solely to fill this field.`],
+    source:"fallback"
+  };
+}
+
+function environmentAwareRecommendation(sectionTitle,label,base){
+  const s=normalizedFieldKey(sectionTitle,label);
+  const hosting=valueByConcept(/Infrastructure Hosting.*Provider|Hosting Model.*Provider/i);
+  const db=valueByConcept(/Database Engine.*Database/i);
+  const backend=valueByConcept(/Backend Framework.*Framework/i);
+
+  if(/secrets store|secret store/.test(s)){
+    if(/aws/i.test(hosting)) return "AWS Secrets Manager is the natural first candidate because it integrates with AWS IAM and avoids another secrets platform.";
+    if(/cloudflare/i.test(hosting)) return "Prefer Cloudflare's supported runtime secret mechanism for workloads hosted there; keep a provider abstraction only where portability truly matters.";
+  }
+  if(/object storage/.test(s)){
+    if(/aws/i.test(hosting)) return "Amazon S3 is the natural first candidate on AWS.";
+    if(/cloudflare/i.test(hosting)) return "Cloudflare R2 is the natural first candidate if the application is primarily hosted in Cloudflare's platform.";
+  }
+  if(/queue|worker/.test(s)){
+    if(/aws/i.test(hosting)) return "Amazon SQS plus a worker service is the boring AWS default.";
+    if(/cloudflare/i.test(hosting)) return "Cloudflare Queues is a natural first candidate where its delivery/runtime model fits the worker requirements.";
+  }
+  if(/database/.test(s) && !/backup|hosting/.test(s)){
+    if(/postgres/i.test(db)) return "You have already indicated PostgreSQL elsewhere; keep this field aligned unless this section intentionally asks for a secondary store.";
+  }
+  if(/backend framework/.test(s) && /next/i.test(backend)) return "You have already selected/indicated Next.js elsewhere; avoid introducing another backend framework unless a concrete boundary requires it.";
+  return base;
+}
+
+function renderHelp(sectionTitle,label,bootstrapKey=null,bootstrapTemplateSuggestion=""){
+  const field=deriveFieldHelp(sectionTitle,label);
+  const suggestion=bootstrapKey
+    ? getBootstrapSuggestion(label,bootstrapKey,bootstrapTemplateSuggestion)
+    : getSuggestion(sectionTitle,label);
+
+  const recommendation=environmentAwareRecommendation(
+    sectionTitle,
+    label,
+    field.recommendation || suggestion || ""
+  );
+
+  const context=relatedContext();
+  const links=resourceList(fieldDocKeys(sectionTitle,label));
+
+  $("helpModalSection").textContent=sectionTitle;
+  $("helpModalTitle").textContent=label;
+
+  const values=(field.values||[]).map(v=>`<li>${esc(v)}</li>`).join("");
+  const pitfalls=(field.pitfalls||[]).map(v=>`<li>${esc(v)}</li>`).join("");
+
+  $("helpModalBody").innerHTML=`
+    <h3>What exactly is this field asking?</h3>
+    <p>${esc(field.purpose)}</p>
+
+    <h3>Why does the Blank Platform need this answer?</h3>
+    <p>${esc(field.need)}</p>
+
+    ${recommendation ? `<h3>Sane starting point for this project</h3>
+      <div class="suggestion-box">
+        ${esc(recommendation)}
+        <br><span class="small muted">Advisory only — this does not populate the field.</span>
+      </div>` : ""}
+
+    ${values ? `<h3>Reasonable values to consider</h3><ul>${values}</ul>` : ""}
+
+    ${context.length ? `<h3>Related answers already entered</h3>
+      <div>${context.map(([k,v])=>`<span class="context-chip">${esc(k)}: ${esc(v)}</span>`).join("")}</div>
+      <p class="small muted">These may affect the recommendation above; entered values are never changed automatically.</p>` : ""}
+
+    ${pitfalls ? `<h3>Things that commonly go wrong</h3><ul>${pitfalls}</ul>` : ""}
+
+    <h3>Decision test</h3>
+    <ul>
+      <li>Does the answer satisfy the relevant Blank Platform contract and security invariant?</li>
+      <li>Is it mature, actively supported and well documented?</li>
+      <li>Is it the least complex option that meets the real requirement?</li>
+      <li>Will a future engineer or AI agent understand exactly what this answer means?</li>
+      <li>If this is deferred, is the trigger for revisiting it explicit?</li>
+    </ul>
+
+    <h3>Authoritative / primary resources</h3>
+    <div class="resource-list">
+      ${links.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.title)} ↗</a>`).join("<br>")}
+    </div>
+  `;
+  $("helpModalBackdrop").classList.remove("hidden");
+  $("helpModalClose").focus();
+}
+
+function closeHelp(){
+  $("helpModalBackdrop").classList.add("hidden");
+}
+
+
+
+
+
+
+function openHandleDb(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open("blank-platform-configurator",1);
+    req.onupgradeneeded=()=>req.result.createObjectStore("handles");
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+async function saveFrameworkHandle(handle){
+  try{
+    const db=await openHandleDb();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction("handles","readwrite");
+      tx.objectStore("handles").put(handle,"framework-folder");
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+    db.close();
+  }catch(e){}
+}
+
+async function loadSavedFrameworkHandle(){
+  try{
+    const db=await openHandleDb();
+    const handle=await new Promise((resolve,reject)=>{
+      const tx=db.transaction("handles","readonly");
+      const req=tx.objectStore("handles").get("framework-folder");
+      req.onsuccess=()=>resolve(req.result||null);
+      req.onerror=()=>reject(req.error);
+    });
+    db.close();
+    return handle;
+  }catch(e){ return null; }
+}
+
+async function loadFrameworkFromHandle(handle, attemptAuto=false){
+  try{
+    let perm="granted";
+    if(handle.queryPermission) perm=await handle.queryPermission({mode:"read"});
+    if(perm!=="granted"){
+      if(attemptAuto){
+        $("rememberedFolderState").textContent=`Previously authorized folder remembered (${handle.name}), but browser permission must be granted again.`;
+        return false;
+      }
+      if(handle.requestPermission) perm=await handle.requestPermission({mode:"read"});
+      if(perm!=="granted") return false;
+    }
+
+    state.sourceHandle=handle;
+    state.sourceFolderName=handle.name;
+    state.sourceFiles={};
+    for await (const [name,child] of handle.entries()){
+      if(child.kind==="file" && REQUIRED_FRAMEWORK_FILES.includes(name)){
+        state.sourceFiles[name]=await child.getFile();
+      }
+    }
+    if(state.sourceFiles[SOURCE_DOC06]) state.doc06Text=await state.sourceFiles[SOURCE_DOC06].text(); else state.doc06Text="";
+    if(state.sourceFiles[SOURCE_DOC06A]) state.doc06Atext=await state.sourceFiles[SOURCE_DOC06A].text(); else state.doc06Atext="";
+    state.doc06Name=SOURCE_DOC06; state.doc06AName=SOURCE_DOC06A;
+    renderFrameworkStatus();
+    $("rememberedFolderState").textContent=`Remembered framework folder: ${handle.name}`;
+    await saveFrameworkHandle(handle);
+    return true;
+  }catch(e){
+    if(!attemptAuto) toast("Could not read the selected framework folder.");
+    return false;
+  }
+}
+
+async function autoLoadRememberedFramework(){
+  if(!("showDirectoryPicker" in window) || !window.indexedDB) return;
+  const handle=await loadSavedFrameworkHandle();
+  if(!handle) return;
+  await loadFrameworkFromHandle(handle,true);
+}
+
+function normalizeFrameworkFiles(fileEntries){
+  const found={};
+  for(const entry of fileEntries){
+    const name=entry.name || "";
+    if(REQUIRED_FRAMEWORK_FILES.includes(name)) found[name]=entry;
+  }
+  return found;
+}
+
+function renderFrameworkStatus(){
+  const rows=REQUIRED_FRAMEWORK_FILES.map(name=>{
+    const ok=!!state.sourceFiles[name];
+    return `<div>${ok?"✓":"✗"} <code>${esc(name)}</code></div>`;
+  }).join("");
+  $("frameworkFiles").innerHTML=rows;
+  const missing=REQUIRED_FRAMEWORK_FILES.filter(n=>!state.sourceFiles[n]);
+  if(missing.length){
+    $("frameworkState").textContent=`${state.sourceFolderName||"Folder"}: ${missing.length} required file(s) missing`;
+    $("buildForm").disabled=true;
+  } else {
+    $("frameworkState").textContent=`Loaded current framework folder: ${state.sourceFolderName||"selected folder"}`;
+    $("buildForm").disabled=false;
+  }
+}
+
+async function loadFrameworkFromFileList(files, folderName){
+  const candidates=[...files].filter(f=>REQUIRED_FRAMEWORK_FILES.includes(f.name));
+  state.sourceFiles={};
+  for(const f of candidates) state.sourceFiles[f.name]=f;
+  state.sourceFolderName=folderName||"selected folder";
+  if(state.sourceFiles[SOURCE_DOC06]){
+    state.doc06Text=await state.sourceFiles[SOURCE_DOC06].text();
+    state.doc06Name=SOURCE_DOC06;
+  } else state.doc06Text="";
+  if(state.sourceFiles[SOURCE_DOC06A]){
+    state.doc06Atext=await state.sourceFiles[SOURCE_DOC06A].text();
+    state.doc06AName=SOURCE_DOC06A;
+  } else state.doc06Atext="";
+  renderFrameworkStatus();
+}
+
+async function chooseFrameworkFolder(){
+  if("showDirectoryPicker" in window){
+    try{
+      // Browser security does not allow preselecting an arbitrary D:\ path.
+      // The picker remembers the user's last chosen location under this id where supported.
+      const handle=await window.showDirectoryPicker({
+        mode:"read",
+        id:"blank-framework-source"
+      });
+      await loadFrameworkFromHandle(handle,false);
+      return;
+    }catch(e){
+      if(e && e.name==="AbortError") return;
+      toast("Folder picker unavailable here; use Folder fallback.");
+    }
+  }
+  $("frameworkFolderFallback").click();
+}
+async function chooseOutputFolder(){
+  if(!("showDirectoryPicker" in window)){
+    toast("Direct folder writing is not supported by this browser. Use Download ZIP.");
+    return;
+  }
+  try{
+    state.outputHandle=await window.showDirectoryPicker({mode:"readwrite"});
+    $("outputFolderState").textContent=`Output parent folder: ${state.outputHandle.name}`;
+    $("writeFolder").disabled=false;
+  }catch(e){
+    if(!(e && e.name==="AbortError")) toast("Could not open output folder.");
+  }
+}
+
+function parseDoc06(md){
+  const hRe=/^# (\d+)\. (.+)$/gm, heads=[], sections=[];
+  let m;
+  while((m=hRe.exec(md))) heads.push({num:+m[1],title:m[2].trim(),start:m.index,headEnd:hRe.lastIndex});
+  for(let i=0;i<heads.length;i++){
+    const h=heads[i], end=i+1<heads.length?heads[i+1].start:md.length;
+    // Sections 1–4 explain the template; they are not implementation decisions.
+    if(h.num < 5) continue;
+    const body=md.slice(h.headEnd,end);
+    let kind="general";
+    if(/Classification:\*{0,2}\s*MANDATORY|Mandatory Decision|Mandatory production decision|Mandatory if|Mandatory for/i.test(body)) kind="mandatory";
+    else if(/Classification:\*{0,2}\s*CONDITIONAL|Conditional/i.test(body)) kind="conditional";
+    else if(/Classification:\*{0,2}\s*OPTIONAL|Optional|Desirable/i.test(body)) kind="optional";
+
+    const blocks=[];
+    const bRe=/```(?:text)?\n([\s\S]*?)\n```/g;
+    let b;
+    while((b=bRe.exec(body))){
+      const content=b[1];
+      const lines=content.split("\n");
+      const fields=[];
+      for(const line of lines){
+        const fm=line.match(/^([^:#][^:]{0,90}):(?:\s?(.*))?$/);
+        if(fm){
+          const label=fm[1].trim(), value=(fm[2]||"").trim();
+          if(label && !/^(https?|STATE |Domain|Platform|Document|ExampleEntity)$/i.test(label)){
+            fields.push({label,value});
+          }
+        }
+      }
+      const ratio=fields.length/Math.max(1,lines.filter(x=>x.trim()).length);
+      if(fields.length>=2 && ratio>=0.45){
+        blocks.push({
+          globalStart:h.headEnd+b.index,
+          globalEnd:h.headEnd+bRe.lastIndex,
+          content,
+          fields
+        });
+      }
+    }
+    if(blocks.length){
+      let intro=body.split("```")[0]
+        .replace(/^## .*$/gm,"")
+        .replace(/^### .*$/gm,"")
+        .replace(/\n{3,}/g,"\n\n")
+        .trim();
+      if(intro.length>900) intro=intro.slice(0,900).trim()+"…";
+      sections.push({...h,end,kind,blocks,intro});
+    }
+  }
+  return sections;
+}
+
+function makeKey(sec,bi,fi){ return `${sec.num}:${bi}:${fi}`; }
+
+function inferInputType(label){
+  if(/^Status$/i.test(label)) return "status";
+  if(/Rationale|Impact|Strategy|Policy|Consider|Questions|Communication|Boundaries|Use Cases|Notes|Rules|Layout|Semantics|Mechanism|Handling|Integration|Communication|Constraints|Supported|Ownership|Review|Fields|Actions|Services|Dashboards|Scenarios|Requirements|Model|Scope|Mapping|Behaviour|Behavior/i.test(label)) return "long";
+  return "short";
+}
+
+function renderBootstrap(){
+  const wrap=$("bootstrapFields"); wrap.innerHTML="";
+  for(const [label,key,type,suggestionTemplate] of bootstrapSchema){
+    if(state.bootstrap[key]===undefined) state.bootstrap[key]="";
+    const lab=document.createElement("label");
+    lab.className=type==="long"?"full":"";
+    const row=document.createElement("div"); row.className="field-label-row";
+    const txt=document.createElement("span"); txt.textContent=label;
+    const help=document.createElement("button"); help.type="button"; help.className="help-btn";
+    help.textContent="?"; help.title=`Explain ${label}`;
+    help.setAttribute("aria-label",`Explain ${label}`);
+    help.addEventListener("click",()=>renderHelp("Platform bootstrap details",label,key,suggestionTemplate));
+    row.append(txt,help); lab.appendChild(row);
+
+    const input=document.createElement(type==="long"?"textarea":"input");
+    if(type!=="long") input.type="text";
+    input.value=state.bootstrap[key]||"";
+    const ghost=getBootstrapSuggestion(label,key,suggestionTemplate);
+    if(ghost) input.placeholder=ghost;
+    input.dataset.bootstrap=key;
+    input.addEventListener("input",()=>{state.bootstrap[key]=input.value;refreshGhostSuggestions();});
+    lab.appendChild(input);
+    if(ghost){
+      const accept=document.createElement("a");
+      accept.href="#"; accept.className="suggestion-action";
+      accept.dataset.suggestionBootstrap=key;
+      accept.textContent="accept suggestion";
+      accept.addEventListener("click",e=>{
+        e.preventDefault();
+        const current=getBootstrapSuggestion(label,key,suggestionTemplate);
+        if(!input.value && current){
+          input.value=current;
+          state.bootstrap[key]=current;
+          accept.classList.add("hidden");
+        }
+      });
+      lab.appendChild(accept);
+    }
+    wrap.appendChild(lab);
+  }
+}
+
+function parseBootstrapAddendum(md){
+  const result={};
+  const section=md.match(/# Platform Implementation Bootstrap Addendum[\s\S]*$/i);
+  if(!section) return result;
+  const text=section[0];
+
+  const bullets={
+    "Project / Repository":"project_name",
+    "Source Root":"source_root",
+    "Platform Implementation Root":"implementation_root",
+    "Contracts":"contracts_path",
+    "Tests":"tests_root",
+    "Documentation":"docs_root",
+    "ADRs":"adr_path",
+    "Runbooks":"runbooks_path",
+    "Infrastructure":"infra_path",
+    "Scripts":"scripts_path",
+    "Setup":"cmd_setup",
+    "Start":"cmd_start",
+    "Stop":"cmd_stop",
+    "Affected Tests":"cmd_test_affected",
+    "Full Tests":"cmd_test_full",
+    "Lint":"cmd_lint",
+    "Typecheck":"cmd_typecheck",
+    "Create Migration":"cmd_migration_create",
+    "Apply Migration":"cmd_migration_apply",
+    "Reset Database":"cmd_db_reset",
+    "Seed Baseline":"cmd_seed",
+    "Load Scenario":"cmd_scenario",
+    "Build":"cmd_build",
+    "Platform Core Owner / Role":"owner_platform",
+    "Security Owner / Role":"owner_security",
+    "Operations Owner / Role":"owner_operations"
+  };
+  for(const [label,key] of Object.entries(bullets)){
+    const rx=new RegExp(`^- \\*\\*${label.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}:\\*\\*\\s*(.*)$`,"mi");
+    const m=text.match(rx);
+    if(m && m[1] && !/^TBD\b/i.test(m[1].trim())) result[key]=m[1].trim();
+  }
+
+  const protectedMatch=text.match(/\*\*Protected Paths\*\*[\s\S]*?```text\n([\s\S]*?)\n```/i);
+  if(protectedMatch && protectedMatch[1].trim()!=="TBD") result.protected_paths=protectedMatch[1].trim();
+
+  const dev=text.match(/### Development\n\n([\s\S]*?)(?=\n###|\n##|$)/i);
+  const staging=text.match(/### Staging\n\n([\s\S]*?)(?=\n###|\n##|$)/i);
+  const prod=text.match(/### Production\n\n([\s\S]*?)(?=\n###|\n##|$)/i);
+  const notes=text.match(/## Additional Implementation Notes\n\n([\s\S]*?)$/i);
+  if(dev && !/^TBD$/i.test(dev[1].trim())) result.dev_capabilities=dev[1].trim();
+  if(staging && !/^TBD$/i.test(staging[1].trim())) result.staging_restrictions=staging[1].trim();
+  if(prod && !/^TBD$/i.test(prod[1].trim())) result.prod_restrictions=prod[1].trim();
+  if(notes) result.implementation_notes=notes[1].trim();
+  return result;
+}
+
+function extractProjectAnswers(projectMd, templateSections){
+  const projectSections=parseDoc06(projectMd);
+  const answerIndex=new Map();
+  const duplicateKeys=new Set();
+
+  for(const sec of projectSections){
+    sec.blocks.forEach((block,bi)=>block.fields.forEach((f,fi)=>{
+      const key=`${sec.num}|${f.label.trim().toLowerCase()}`;
+      const value=(f.value||"").trim();
+      if(answerIndex.has(key)) duplicateKeys.add(key);
+      if(value) answerIndex.set(key,value);
+    }));
+  }
+
+  const imported={}, unmatchedTemplate=[], matchedKeys=new Set();
+  let importedCount=0;
+  for(const sec of templateSections){
+    sec.blocks.forEach((block,bi)=>block.fields.forEach((f,fi)=>{
+      const importKey=`${sec.num}|${f.label.trim().toLowerCase()}`;
+      const value=answerIndex.get(importKey);
+      if(value!==undefined){
+        imported[makeKey(sec,bi,fi)]=value;
+        matchedKeys.add(importKey);
+        importedCount++;
+      }
+    }));
+  }
+
+  const unmatchedProject=[];
+  for(const [k,v] of answerIndex.entries()){
+    if(!matchedKeys.has(k)) unmatchedProject.push({key:k,value:v});
+  }
+
+  return {
+    imported,
+    bootstrap:parseBootstrapAddendum(projectMd),
+    report:{
+      importedCount,
+      projectAnswerCount:answerIndex.size,
+      unmatchedProject,
+      duplicateKeys:[...duplicateKeys]
+    }
+  };
+}
+
+function renderProjectImportReport(){
+  const r=state.projectImportReport;
+  if(!state.projectSpecText){
+    $("projectSpecState").textContent="No project working specification loaded";
+    $("projectImportReport").innerHTML="";
+    return;
+  }
+  $("projectSpecState").textContent=`Loaded project working spec: ${state.projectSpecName}`;
+  if(!r){
+    $("projectImportReport").textContent="Answers will be imported when the questionnaire is built.";
+    return;
+  }
+  const unmatched=r.unmatchedProject.length;
+  const dup=r.duplicateKeys.length;
+  $("projectImportReport").innerHTML=
+    `<span class="import-ok">${r.importedCount} answer(s) imported</span>`+
+    (unmatched?` · <span class="import-warn">${unmatched} old/unmatched answer(s) not applied</span>`:"")+
+    (dup?` · <span class="import-warn">${dup} duplicate field key(s) detected</span>`:"")+
+    `<br><span class="muted">Import matches by Document 06 section number + field label, so the pristine template controls structure.</span>`;
+}
+
+async function loadProjectSpec(file){
+  state.projectSpecText=await file.text();
+  state.projectSpecName=file.name;
+  state.projectImportReport=null;
+  renderProjectImportReport();
+  if(state.sections.length){
+    const imported=extractProjectAnswers(state.projectSpecText,state.sections);
+    Object.assign(state.answers,imported.imported);
+    Object.assign(state.bootstrap,imported.bootstrap);
+    state.projectImportReport=imported.report;
+    renderQuestions();
+    renderBootstrap();
+    refreshGhostSuggestions();
+    updateProgress();
+    renderProjectImportReport();
+    toast("Project answers imported into the pristine template.");
+  }
+}
+
+function clearProjectSpec(){
+  state.projectSpecText="";
+  state.projectSpecName="";
+  state.projectImportReport=null;
+  renderProjectImportReport();
+  if(state.sections.length){
+    state.answers={};
+    state.bootstrap={};
+    state.sections.forEach(sec=>sec.blocks.forEach((b,bi)=>b.fields.forEach((f,fi)=>{
+      state.answers[makeKey(sec,bi,fi)]=f.value||"";
+    })));
+    renderQuestions(); renderBootstrap(); refreshGhostSuggestions(); updateProgress();
+  }
+  toast("Loaded project answers cleared. Pristine framework template remains.");
+}
+
+function buildQuestionnaire(){
+  state.sections=parseDoc06(state.doc06Text);
+  state.answers={};
+  state.bootstrap={};
+
+  // Start strictly from the pristine framework template.
+  for(const sec of state.sections){
+    sec.blocks.forEach((block,bi)=>block.fields.forEach((f,fi)=>{
+      state.answers[makeKey(sec,bi,fi)]=f.value||"";
+    }));
+  }
+
+  // Then overlay only matching project-specific answers.
+  if(state.projectSpecText){
+    const imported=extractProjectAnswers(state.projectSpecText,state.sections);
+    Object.assign(state.answers,imported.imported);
+    Object.assign(state.bootstrap,imported.bootstrap);
+    state.projectImportReport=imported.report;
+  } else {
+    state.projectImportReport=null;
+  }
+
+  renderQuickStart();
+  renderQuestions(); renderNav(); renderBootstrap(); refreshGhostSuggestions(); updateProgress(); renderProjectImportReport();
+  $("quickStartCard").classList.remove("hidden");
+  $("work").classList.remove("hidden");
+  $("work").scrollIntoView({behavior:"smooth",block:"start"});
+  toast(state.projectSpecText
+    ? `Questionnaire built from pristine 06; ${state.projectImportReport.importedCount} project answer(s) imported.`
+    : `Questionnaire built from pristine Document 06 (${state.sections.length} decision sections).`);
+}
+function renderQuestions(){
+  const wrap=$("questions"); wrap.innerHTML="";
+  for(const sec of state.sections){
+    const card=document.createElement("section");
+    card.className="card section-card";
+    card.id=`sec-${sec.num}`;
+    card.dataset.kind=sec.kind;
+    card.dataset.title=(sec.title+" "+sec.intro).toLowerCase();
+
+    const head=document.createElement("div"); head.className="section-head";
+    head.innerHTML=`<div><h2><span class="section-number">${sec.num}.</span> ${esc(sec.title)}</h2>
+      <span class="pill ${sec.kind==="mandatory"?"must":sec.kind==="optional"?"optional":""}">${esc(sec.kind)}</span></div>
+      <span class="pill todo section-state">incomplete</span>`;
+    card.appendChild(head);
+
+    if(sec.intro){
+      const details=document.createElement("details");
+      details.innerHTML=`<summary>Decision context</summary><div class="context">${esc(sec.intro)}</div>`;
+      card.appendChild(details);
+    }
+
+    sec.blocks.forEach((block,bi)=>{
+      const grid=document.createElement("div"); grid.className="field-grid";
+      block.fields.forEach((f,fi)=>{
+        const key=makeKey(sec,bi,fi), typ=inferInputType(f.label);
+        const lab=document.createElement("label");
+        lab.className=typ==="long"?"full":"";
+        const row=document.createElement("div"); row.className="field-label-row";
+        const labelText=document.createElement("span"); labelText.textContent=f.label;
+        const meta=state.answerMeta[key];
+        if(meta && meta.source==="generated-default"){
+          const badge=document.createElement("span"); badge.className="auto-badge";
+          badge.textContent=meta.review?"default · review":"default";
+          row.append(labelText,badge);
+        } else {
+          row.append(labelText);
+        }
+        const help=document.createElement("button"); help.type="button"; help.className="help-btn";
+        help.textContent="?"; help.title=`Explain ${f.label}`;
+        help.setAttribute("aria-label",`Explain ${f.label}`);
+        help.addEventListener("click",()=>renderHelp(sec.title,f.label));
+        row.append(help); lab.appendChild(row);
+        let input;
+        if(typ==="status"){
+          input=document.createElement("select");
+          ["","PROPOSED","APPROVED","DEFERRED","NOT APPLICABLE","REJECTED"].forEach(v=>{
+            const o=document.createElement("option");o.value=v;o.textContent=v||"— choose —";input.appendChild(o);
+          });
+          input.value=state.answers[key]||"";
+        } else if(typ==="long"){
+          input=document.createElement("textarea"); input.value=state.answers[key]||"";
+        } else {
+          input=document.createElement("input"); input.type="text"; input.value=state.answers[key]||"";
+        }
+        const ghost=getSuggestion(sec.title,f.label);
+        if(ghost && typ!=="status") input.placeholder=ghost;
+        input.dataset.answer=key;
+        input.addEventListener("input",()=>{
+          state.answers[key]=input.value;
+          if(input.value) state.answerMeta[key]={source:"human",confidence:"human",review:false,reason:"User edited/confirmed."};
+          else delete state.answerMeta[key];
+          updateProgress();refreshGhostSuggestions();updateBaselineSummary();
+        });
+        input.addEventListener("change",()=>{
+          state.answers[key]=input.value;
+          if(input.value) state.answerMeta[key]={source:"human",confidence:"human",review:false,reason:"User edited/confirmed."};
+          else delete state.answerMeta[key];
+          updateProgress();refreshGhostSuggestions();updateBaselineSummary();
+        });
+        lab.appendChild(input);
+        if(ghost && typ!=="status"){
+          const accept=document.createElement("a");
+          accept.href="#"; accept.className="suggestion-action";
+          accept.dataset.suggestionAnswer=key;
+          accept.textContent="accept suggestion";
+          accept.addEventListener("click",e=>{
+            e.preventDefault();
+            const current=getSuggestion(sec.title,f.label);
+            if(!input.value && current){
+              input.value=current;
+              state.answers[key]=current;
+              state.answerMeta[key]={source:"human",confidence:"human",review:false,reason:"User accepted suggestion."};
+              accept.classList.add("hidden");
+              updateProgress();
+              refreshGhostSuggestions();
+            }
+          });
+          lab.appendChild(accept);
+        }
+        grid.appendChild(lab);
+      });
+      card.appendChild(grid);
+    });
+    wrap.appendChild(card);
+  }
+}
+
+
+function refreshGhostSuggestions(){
+  for(const sec of state.sections||[]){
+    sec.blocks.forEach((block,bi)=>block.fields.forEach((f,fi)=>{
+      const key=makeKey(sec,bi,fi);
+      const el=document.querySelector(`[data-answer="${CSS.escape(key)}"]`);
+      const accept=document.querySelector(`[data-suggestion-answer="${CSS.escape(key)}"]`);
+      if(!el || inferInputType(f.label)==="status") return;
+
+      // Suggestions are live only while the field is empty.
+      if(!el.value){
+        const ghost=getSuggestion(sec.title,f.label);
+        el.placeholder=ghost||"";
+        if(accept) accept.classList.toggle("hidden",!ghost);
+      }else{
+        if(accept) accept.classList.add("hidden");
+      }
+    }));
+  }
+
+  // Bootstrap suggestions follow the same rule.
+  for(const [label,key,type,suggestionTemplate] of bootstrapSchema){
+    const el=document.querySelector(`[data-bootstrap="${CSS.escape(key)}"]`);
+    const accept=document.querySelector(`[data-suggestion-bootstrap="${CSS.escape(key)}"]`);
+    if(!el) continue;
+    if(!el.value){
+      const ghost=getBootstrapSuggestion(label,key,suggestionTemplate);
+      el.placeholder=ghost||"";
+      if(accept) accept.classList.toggle("hidden",!ghost);
+    }else{
+      if(accept) accept.classList.add("hidden");
+    }
+  }
+}
+function sectionAnswered(sec){
+  let substantive=0;
+  sec.blocks.forEach((b,bi)=>b.fields.forEach((f,fi)=>{
+    const v=(state.answers[makeKey(sec,bi,fi)]||"").trim();
+    if(v && !/^(PROPOSED)$/i.test(v)) substantive++;
+  }));
+  return substantive>0;
+}
+
+function updateProgress(){
+  let answered=0, must=0, mustAnswered=0;
+  for(const sec of state.sections){
+    const done=sectionAnswered(sec); if(done) answered++;
+    if(sec.kind==="mandatory"){must++; if(done) mustAnswered++;}
+    const card=$(`sec-${sec.num}`);
+    if(card){
+      const badge=card.querySelector(".section-state");
+      badge.textContent=done?"answered":"incomplete";
+      badge.className=`pill ${done?"done":"todo"} section-state`;
+    }
+  }
+  $("questionCount").textContent=`${state.sections.length} decision sections`;
+  $("answeredCount").textContent=`${answered} answered`;
+  $("mandatoryCount").textContent=`${mustAnswered}/${must} mandatory touched`;
+  $("progressBar").style.width=`${state.sections.length?answered/state.sections.length*100:0}%`;
+  applyFilter();
+}
+
+function renderNav(){
+  const nav=$("nav"); nav.innerHTML="";
+  // Keep nav compact: group by rough numeric bands.
+  const groups=[
+    ["Foundation",5,25],["Security & identity",26,38],["Async & services",39,68],
+    ["Admin & infrastructure",69,97],["Testing & delivery",98,126],
+    ["Data & operations",127,183],["Security operations",184,224],
+    ["Standards & lifecycle",225,305],["Completion",306,999]
+  ];
+  for(const [name,min,max] of groups){
+    const secs=state.sections.filter(s=>s.num>=min&&s.num<=max);
+    if(!secs.length) continue;
+    const b=document.createElement("button"); b.textContent=`${name} (${secs.length})`;
+    b.addEventListener("click",()=>{ const target=$(`sec-${secs[0].num}`); if(target) target.scrollIntoView({behavior:"smooth"}); });
+    nav.appendChild(b);
+  }
+}
+
+function applyFilter(){
+  const q=($("search")?.value||"").trim().toLowerCase();
+  const f=$("filter")?.value||"all";
+  state.sections.forEach(sec=>{
+    const card=$(`sec-${sec.num}`); if(!card)return;
+    const matchesQ=!q||card.dataset.title.includes(q)||card.textContent.toLowerCase().includes(q);
+    let matchesF=true;
+    if(f==="mandatory") matchesF=sec.kind==="mandatory";
+    else if(f==="conditional") matchesF=sec.kind==="conditional";
+    else if(f==="optional") matchesF=sec.kind==="optional";
+    else if(f==="incomplete") matchesF=!sectionAnswered(sec);
+    const modeVisible=!(state.reviewMode && state.baselineApplied && !sectionNeedsReview(sec));
+    card.classList.toggle("hidden",!(matchesQ&&matchesF&&modeVisible));
+  });
+}
+
+function generateCompletedDoc(){
+  let md=state.doc06Text;
+  const replacements=[];
+  for(const sec of state.sections){
+    sec.blocks.forEach((block,bi)=>{
+      let lines=block.content.split("\n");
+      let fieldIndex=0;
+      lines=lines.map(line=>{
+        const fm=line.match(/^([^:#][^:]{0,90}):(?:\s?(.*))?$/);
+        if(!fm) return line;
+        const label=fm[1].trim();
+        const expected=block.fields[fieldIndex];
+        if(expected && expected.label===label){
+          const v=mdValue(state.answers[makeKey(sec,bi,fieldIndex)]);
+          fieldIndex++;
+          return `${label}:${v?" "+v:""}`;
+        }
+        return line;
+      });
+      replacements.push([block.globalStart,block.globalEnd,"```text\n"+lines.join("\n")+"\n```"]);
+    });
+  }
+  replacements.sort((a,b)=>b[0]-a[0]).forEach(([a,b,t])=>md=md.slice(0,a)+t+md.slice(b));
+
+  if($("includeComments").checked){
+    const unresolved=state.sections.filter(s=>!sectionAnswered(s) && s.kind==="mandatory");
+    if(unresolved.length){
+      md += `\n\n---\n\n# Generated Completion Notes\n\n<!-- Generated by Blank Platform Technology Configurator. These comments are advisory and are not hidden decisions. -->\n\n`;
+      md += `The following mandatory decision sections remain without substantive answers:\n\n`;
+      unresolved.forEach(s=>md+=`- Section ${s.num} — ${s.title}\n`);
+    }
+    const deferred=[];
+    for(const sec of state.sections){
+      sec.blocks.forEach((b,bi)=>b.fields.forEach((fld,fi)=>{
+        if(fld.label.toLowerCase()==="status" && (state.answers[makeKey(sec,bi,fi)]||"").toUpperCase()==="DEFERRED") deferred.push(sec);
+      }));
+    }
+    if(deferred.length){
+      md += `\nDeferred decisions should have an explicit rationale and reconsideration trigger:\n\n`;
+      [...new Map(deferred.map(s=>[s.num,s])).values()].forEach(s=>md+=`- Section ${s.num} — ${s.title}\n`);
+    }
+  }
+
+  if($("includeAddendum").checked) md += buildBootstrapAddendum();
+  if(state.baselineApplied){
+    md += `
+
+---
+
+# Generated Baseline Provenance
+
+`;
+    md += `<!-- The values below identify which fields were populated by the configurator baseline rather than directly entered by a human. -->
+
+`;
+    md += `The project technology specification was initialized using the configurator's safe-baseline engine. Generated defaults remain ordinary editable project decisions and should be reviewed according to risk.
+
+`;
+    md += `## Quick-Start Profile
+
+`;
+    for(const [label,key] of quickSchema.map(x=>[x[0],x[1]])) md += `- **${label}:** ${state.quick[key]||"TBD"}
+`;
+    md += `
+## Generated Fields Requiring Review
+
+`;
+    let any=false;
+    for(const sec of state.sections){
+      sec.blocks.forEach((b,bi)=>b.fields.forEach((f,fi)=>{
+        const key=fieldId(sec,bi,fi), meta=state.answerMeta[key];
+        if(meta?.source==="generated-default" && meta.review){
+          any=true; md += `- Section ${sec.num} — ${sec.title} — ${f.label}: ${state.answers[key]}
+`;
+        }
+      }));
+    }
+    if(!any) md += `- None
+`;
+  }
+  return md;
+}
+
+function buildBootstrapAddendum(){
+  const b=state.bootstrap;
+  const line=(label,key)=>`- **${label}:** ${mdValue(b[key])||"TBD — not yet specified"}\n`;
+  let s=`\n\n---\n\n# Platform Implementation Bootstrap Addendum\n\n`;
+  s+=`<!-- Generated from the 06A implementation recipe. This section is technology-specific but domain-independent. -->\n\n`;
+  s+=`This addendum records concrete values required to regenerate agent-facing repository artifacts after the platform technology choices are known.\n\n`;
+  s+=`## Repository Paths\n\n`;
+  [["Project / Repository", "project_name"],["Source Root","source_root"],["Platform Implementation Root","implementation_root"],
+   ["Contracts","contracts_path"],["Tests","tests_root"],["Documentation","docs_root"],["ADRs","adr_path"],["Runbooks","runbooks_path"],
+   ["Infrastructure","infra_path"],["Scripts","scripts_path"]].forEach(x=>s+=line(...x));
+  s+=`\n## Canonical Development Commands\n\n`;
+  [["Setup","cmd_setup"],["Start","cmd_start"],["Stop","cmd_stop"],["Affected Tests","cmd_test_affected"],["Full Tests","cmd_test_full"],
+   ["Lint","cmd_lint"],["Typecheck","cmd_typecheck"],["Create Migration","cmd_migration_create"],["Apply Migration","cmd_migration_apply"],
+   ["Reset Database","cmd_db_reset"],["Seed Baseline","cmd_seed"],["Load Scenario","cmd_scenario"],["Build","cmd_build"]].forEach(x=>s+=line(...x));
+  s+=`\n## Ownership and Protected Paths\n\n`;
+  s+=line("Platform Core Owner / Role","owner_platform")+line("Security Owner / Role","owner_security")+line("Operations Owner / Role","owner_operations");
+  s+=`\n**Protected Paths**\n\n\`\`\`text\n${mdValue(b.protected_paths)||"TBD"}\n\`\`\`\n`;
+  s+=`\n## Environment Policy Notes\n\n`;
+  s+=`### Development\n\n${mdValue(b.dev_capabilities)||"TBD"}\n\n`;
+  s+=`### Staging\n\n${mdValue(b.staging_restrictions)||"TBD"}\n\n`;
+  s+=`### Production\n\n${mdValue(b.prod_restrictions)||"TBD"}\n\n`;
+  if(mdValue(b.implementation_notes)) s+=`## Additional Implementation Notes\n\n${mdValue(b.implementation_notes)}\n`;
+  return s;
+}
+
+function findValue(sectionRegex,labelRegexes){
+  const regs=Array.isArray(labelRegexes)?labelRegexes:[labelRegexes];
+  for(const sec of state.sections){
+    if(!sectionRegex.test(sec.title)) continue;
+    for(let bi=0;bi<sec.blocks.length;bi++){
+      for(let fi=0;fi<sec.blocks[bi].fields.length;fi++){
+        const f=sec.blocks[bi].fields[fi];
+        if(regs.some(r=>r.test(f.label))){
+          const v=mdValue(state.answers[makeKey(sec,bi,fi)]);
+          if(v) return v;
+        }
+      }
+    }
+  }
+  return "";
+}
+
+function technologyFacts(){
+  return {
+    project: state.bootstrap.project_name||"",
+    language: findValue(/Primary Programming Language/i,[/Backend Language/i,/Primary Language/i]),
+    runtime: findValue(/^Runtime$/i,/^Runtime$/i),
+    backend_framework: findValue(/Backend Framework/i,/^Framework$/i),
+    frontend_framework: findValue(/Frontend Framework/i,/^Framework$/i),
+    repository_model: findValue(/Repository Structure/i,/Repository Model/i),
+    package_manager: findValue(/Package and Dependency/i,/Package Manager/i),
+    api_style: findValue(/API Protocol/i,/Primary API Style/i),
+    api_schema: findValue(/API Schema/i,/Schema Standard/i),
+    database: findValue(/Database Engine/i,/^Database$/i),
+    orm: findValue(/Data Access Layer/i,/ORM|Query Layer/i),
+    migration_tool: findValue(/Migration Tooling/i,/Migration Tool/i),
+    authorization: findValue(/Authorization Engine/i,/Authorization Engine/i),
+    authentication: findValue(/Authentication Platform/i,/Authentication Provider|Library/i),
+    session_model: findValue(/Session Storage/i,/Session Model/i),
+    secrets: findValue(/Secrets Management/i,/Secret Store/i),
+    kms: findValue(/Cryptographic Key/i,/Key Store|KMS/i),
+    queue: findValue(/Message Queue/i,/^Queue$/i),
+    worker: findValue(/Background Worker/i,/Worker Framework/i),
+    object_storage: findValue(/Object Storage/i,/Object Store/i),
+    logging: findValue(/^Logging$/i,/Logging Library|Destination/i),
+    metrics: findValue(/^Metrics$/i,/Metrics Backend|Metrics Library/i),
+    error_tracking: findValue(/Error Tracking/i,/Error Tracking Service/i),
+    hosting: findValue(/Infrastructure Hosting/i,/Provider/i),
+    ci: findValue(/^CI Platform$/i,/CI Provider/i),
+    cd: findValue(/^CD Platform$/i,/Deployment Tool/i),
+    iac: findValue(/Infrastructure as Code/i,/IaC Tool/i)
+  };
+}
+
+function genTechnologyProfile(){
+  const t=technologyFacts();
+  let y=`# Derived from completed Document 06. Regenerate after material technology changes.\n`;
+  y+=`generated_artifact: true\nsource_of_truth: "PROJECT_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION.md"\n`;
+  Object.entries(t).forEach(([k,v])=>y+=`${k}: ${yamlQuote(v||"TBD")}\n`);
+  return y;
+}
+
+function genCommands(){
+  const b=state.bootstrap;
+  const rows=[
+    ["Install / setup","cmd_setup"],["Start","cmd_start"],["Stop","cmd_stop"],["Test affected","cmd_test_affected"],
+    ["Test full","cmd_test_full"],["Lint","cmd_lint"],["Typecheck","cmd_typecheck"],["Create migration","cmd_migration_create"],
+    ["Apply migration","cmd_migration_apply"],["Reset DB","cmd_db_reset"],["Seed baseline","cmd_seed"],["Load scenario","cmd_scenario"],["Build","cmd_build"]
+  ];
+  let s=`# DEVELOPMENT COMMANDS\n\n> Derived from PROJECT_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION.md. Regenerate rather than editing independently.\n\n`;
+  for(const [label,key] of rows) s+=`- **${label}:** \`${mdValue(b[key])||"TBD"}\`\n`;
+  return s;
+}
+
+function genEnvironmentMatrix(){
+  const b=state.bootstrap;
+  return `# Derived from completed Document 06. No secrets belong in this file.
+generated_artifact: true
+source_of_truth: "PROJECT_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION.md"
+environments:
+  development:
+    synthetic_test_data: allowed
+    destructive_reset: allowed_with_local_environment_guard
+    fake_outbound_providers: preferred
+    notes: ${yamlQuote(b.dev_capabilities||"TBD")}
+  test:
+    synthetic_test_data: allowed
+    destructive_reset: allowed_with_test_environment_guard
+    fake_outbound_providers: required_where_practical
+    notes: "Automated, deterministic and isolated."
+  staging:
+    synthetic_test_data: preferred
+    production_data: "masked/approved only"
+    destructive_reset: restricted
+    notes: ${yamlQuote(b.staging_restrictions||"TBD")}
+  production:
+    synthetic_test_data: prohibited_by_default
+    destructive_reset: prohibited_by_default
+    dev_shortcuts: prohibited
+    privileged_data_operations: "explicit permission + elevation + audit"
+    notes: ${yamlQuote(b.prod_restrictions||"TBD")}
+`;
+}
+
+function genAgents(){
+  const t=technologyFacts(), b=state.bootstrap;
+  const val=x=>x||"TBD";
+  return `# AGENTS.md
+## Concrete Blank Platform Agent Entry Point
+
+> GENERATED ARTIFACT. Source of truth: PROJECT_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION.md plus canonical Blank framework Documents 01–08.
+> Regenerate this file after material technology or repository-layout changes.
+
+## Start Here
+
+Work from the task outward. Do not load the entire canonical document set by default.
+
+1. Read this file.
+2. Use \`PROJECT_AGENT_CONTEXT_MAP.yaml\` to locate only the relevant contract, implementation and tests.
+3. Read affected code and tests.
+4. Load security/architecture material only when the task crosses those boundaries.
+
+## Superpowers IF / ELSE
+
+IF Superpowers is active for this agent, use applicable Superpowers skills under \`08_AI_ENGINEERING_OPERATING_MODEL.md\`. ELSE use the native Blank workflow in Documents 02 and 08. Blank wins every conflict.
+
+## HARD GATE — Mature Contracts / Existing Toolbox
+
+Mature contracts and known-good reusable primitives are immutable by default.
+
+Before creating any reusable UI primitive, database/persistence method, wrapper, helper, service, adapter, test harness, or generic abstraction:
+
+1. search \`PROJECT_TOOLBOX_REGISTRY.yaml\`;
+2. search the mature capability contract/registry;
+3. use the selected framework/library primitive if it already exists;
+4. inspect existing tests/examples for intended usage.
+
+If nothing adequate exists, STOP and present a Toolbox Gap to the user. Do not write the new reusable code first. The user chooses reuse/import/compose/extend/contract-change/bespoke/defer and may prefer an established GitHub/library solution.
+
+## Technology Snapshot
+
+- Project: ${val(t.project)}
+- Language: ${val(t.language)}
+- Runtime: ${val(t.runtime)}
+- Backend: ${val(t.backend_framework)}
+- Frontend: ${val(t.frontend_framework)}
+- Database: ${val(t.database)}
+- Data access: ${val(t.orm)}
+- Migrations: ${val(t.migration_tool)}
+- Authentication: ${val(t.authentication)}
+- Authorization: ${val(t.authorization)}
+- Queue/worker: ${val(t.queue)} / ${val(t.worker)}
+- Object storage: ${val(t.object_storage)}
+- Hosting: ${val(t.hosting)}
+- CI/CD: ${val(t.ci)} / ${val(t.cd)}
+
+## Repository Locations
+
+- Platform implementation: \`${val(b.implementation_root)}\`
+- Contracts: \`${val(b.contracts_path)}\`
+- Tests: \`${val(b.tests_root)}\`
+- ADRs: \`${val(b.adr_path)}\`
+- Runbooks: \`${val(b.runbooks_path)}\`
+- Infrastructure: \`${val(b.infra_path)}\`
+
+## Canonical Commands
+
+- Setup: \`${val(b.cmd_setup)}\`
+- Start: \`${val(b.cmd_start)}\`
+- Test affected: \`${val(b.cmd_test_affected)}\`
+- Test full: \`${val(b.cmd_test_full)}\`
+- Lint: \`${val(b.cmd_lint)}\`
+- Typecheck: \`${val(b.cmd_typecheck)}\`
+- Apply migrations: \`${val(b.cmd_migration_apply)}\`
+- Reset development DB: \`${val(b.cmd_db_reset)}\`
+- Seed baseline: \`${val(b.cmd_seed)}\`
+- Load scenario: \`${val(b.cmd_scenario)}\`
+- Build: \`${val(b.cmd_build)}\`
+
+## Non-Negotiable Working Rules
+
+- Domain code depends on platform contracts; platform core does not depend on domain code.
+- Authorization defaults deny and is enforced server-side.
+- Tenant context is trusted only after server validation.
+- Do not bypass canonical audit, configuration, jobs, notification, storage or authorization services.
+- Keep reusable capabilities/services distinct from delivery obligations; use \`PROJECT_DELIVERY_OBLIGATIONS.md\` for production evidence.
+- Do not introduce a dependency when the selected stack already provides an adequate mature mechanism.
+- Do not recursively follow documentation references "just in case".
+- Do not spawn child-agent work that can be completed cheaply in the current task.
+- Run the smallest evidence-producing test set appropriate to the change; broader suites remain release gates.
+- A flaky test is a defect, not permission to rerun until green.
+- Development-only powers must never become user-switchable production features.
+- If a stable component's contract is sufficient, do not read or rewrite its internals.
+- Do not invent a new reusable primitive when the toolbox already contains one.
+- A genuine toolbox gap requires explicit user approval BEFORE reusable code/import/contract change.
+
+## Protected Paths
+
+\`\`\`text
+${mdValue(b.protected_paths)||"TBD"}
+\`\`\`
+
+Changes to security-sensitive or canonical boundaries require the escalation process defined by the AI Development Constitution.
+`;
+}
+
+function genContextMap(){
+  const b=state.bootstrap, t=technologyFacts();
+  const imp=(name)=>`${(b.implementation_root||"src/platform/").replace(/\/?$/,"/")}${name}/`;
+  const tst=(name)=>`${(b.tests_root||"tests/").replace(/\/?$/,"/")}platform/${name}/`;
+  const ctr=(name)=>`${(b.contracts_path||"docs/contracts/").replace(/\/?$/,"/")}${name}.md`;
+  const caps=["identity","authentication","sessions","tenancy","organization","authorization","configuration","audit","jobs","notifications","object-storage","data-inspector","observability"];
+  let y=`# GENERATED ARTIFACT — regenerate from PROJECT_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION.md after repository-path changes.\n`;
+  y+=`source_of_truth: "PROJECT_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION.md"\n`;
+  y+=`project: ${yamlQuote(t.project||"TBD")}\n`;
+  y+=`routing_rule: "Load only the entries required by the current task; do not recursively load references."\n`;
+  y+=`superpowers_mode: ${yamlQuote(state.quick.superpowers||"when-available")}\n`;
+  y+=`superpowers_governance: "08_AI_ENGINEERING_OPERATING_MODEL.md"\n`;
+  y+=`toolbox_registry: "PROJECT_TOOLBOX_REGISTRY.yaml"\n`;
+  y+=`toolbox_gap_user_approval_required: true\n`;
+  y+=`capabilities:\n`;
+  for(const c of caps){
+    y+=`  ${c}:\n    contract: ${yamlQuote(ctr(c))}\n    implementation: ${yamlQuote(imp(c))}\n    tests: ${yamlQuote(tst(c))}\n`;
+    y+=`    path_status: "suggested_from_Document_06; confirm against repository scaffold"\n`;
+    if(["authentication","tenancy","authorization","audit","data-inspector"].includes(c)) y+=`    security_review: "required_when_boundary_changes"\n`;
+  }
+  return y;
+}
+
+function genToolboxRegistry(){
+  const t=technologyFacts(), b=state.bootstrap;
+  const entries=[
+    ["language-runtime",`${t.language||"TBD"} / ${t.runtime||"TBD"}`],
+    ["backend-framework",t.backend_framework||"TBD"],
+    ["frontend-framework",t.frontend_framework||"TBD"],
+    ["database",t.database||"TBD"],
+    ["data-access",t.orm||"TBD"],
+    ["migration-tool",t.migration_tool||"TBD"],
+    ["authentication",t.authentication||"TBD"],
+    ["authorization",t.authorization||"TBD"],
+    ["queue-worker",`${t.queue||"TBD"} / ${t.worker||"TBD"}`],
+    ["object-storage",t.object_storage||"TBD"],
+    ["platform-capabilities","PROJECT_PLATFORM_CAPABILITY_REGISTRY.yaml"]
+  ];
+  let y=`# GENERATED ARTIFACT — approved toolbox locator. Regenerate from project technology decisions.\n`;
+  y+=`source_of_truth: "PROJECT_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION.md"\n`;
+  y+=`mature_contracts_immutable_by_default: true\n`;
+  y+=`new_reusable_code_requires_explicit_user_approval: true\n`;
+  y+=`toolbox_gap_governance: "08_AI_ENGINEERING_OPERATING_MODEL.md"\n`;
+  y+=`search_order:\n  - "this registry"\n  - "published mature contracts"\n  - "selected framework/library primitives"\n  - "approved dependencies/adapters"\n  - "tests/examples"\n`;
+  y+=`toolbox:\n`;
+  for(const [kind,value] of entries) y+=`  - kind: ${yamlQuote(kind)}\n    selected: ${yamlQuote(value)}\n    status: "approved_or_TBD"\n`;
+  y+=`project_paths:\n  implementation_root: ${yamlQuote(b.implementation_root||"TBD")}\n  contracts: ${yamlQuote(b.contracts_path||"TBD")}\n  tests: ${yamlQuote(b.tests_root||"TBD")}\n`;
+  return y;
+}
+
+function genToolboxPolicy(){
+  return `# PROJECT TOOLBOX POLICY\n\n> GENERATED ARTIFACT. Canonical governance: Blank Documents 02, 03 and 08.\n\n## Rule\n\nMature contracts and known-good reusable components are immutable by default. Use the existing toolbox before creating code.\n\n## Toolbox Gap\n\nIf the required reusable primitive is absent or genuinely insufficient, STOP and ask the user before creating/importing/extending/changing it. Present existing tools checked, why they fail, credible pre-existing external options, and the smallest bespoke option.\n\nThe user may choose: REUSE, IMPORT, COMPOSE, EXTEND, CHANGE CONTRACT, AUTHORIZE BESPOKE, or DEFER.\n\nNo reusable implementation begins before that decision.\n\n## Superpowers\n\nIF Superpowers is active, its skills execute under this policy. ELSE the native Blank workflow applies.\n`;
+}
+
+function genCapabilityRegistry(){
+  const b=state.bootstrap;
+  const caps=[
+    ["identity","foundation-capability"],["authentication","foundation-capability"],["sessions","foundation-capability"],
+    ["tenancy","foundation-capability"],["organization-hierarchy","foundation-capability"],["authorization","foundation-capability"],
+    ["persistence","foundation-capability"],["validation","foundation-capability"],["migrations","foundation-capability"],
+    ["configuration","foundation-capability"],["audit","foundation-capability"],["api-error-model","foundation-capability"],
+    ["idempotency-concurrency","foundation-capability"],["time-locale-money","foundation-capability"],["secrets-keys","foundation-capability"],
+    ["jobs","platform-service"],["transactional-events","platform-service"],["notifications","platform-service"],
+    ["object-storage","platform-service"],["feature-flags","platform-service"],["privacy-lifecycle","platform-service"],
+    ["health-readiness","platform-service"],["maintenance-degradation","platform-service"],["platform-admin","platform-service"],
+    ["data-inspector","platform-service"],["correlation-observability","platform-service"],["import-export-webhooks","platform-service"]
+  ];
+  const root=(b.implementation_root||"src/platform/").replace(/\/?$/,"/");
+  const tests=(b.tests_root||"tests/").replace(/\/?$/,"/");
+  const contracts=(b.contracts_path||"docs/contracts/").replace(/\/?$/,"/");
+  let y=`# GENERATED ARTIFACT — reusable mechanism registry; delivery obligations are separate.\nsource_of_truth: "03_PLATFORM_CAPABILITY_CONTRACTS.md + PROJECT_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION.md"\n`;
+  y+=`taxonomy: [foundation-capability, platform-service]\n`;
+  y+=`delivery_obligations: "PROJECT_DELIVERY_OBLIGATIONS.md"\n`;
+  y+=`capabilities:\n`;
+  for(const [name,cls] of caps){
+    y+=`  - name: ${yamlQuote(name)}\n    class: ${yamlQuote(cls)}\n    status: "planned"\n    contract: ${yamlQuote(contracts+name+".md")}\n    implementation: ${yamlQuote(root+name+"/")}\n    tests: ${yamlQuote(tests+"platform/"+name+"/")}\n`;
+  }
+  return y;
+}
+
+function genDeliveryObligations(){
+  const q=(rx)=>valueByConcept(rx)||"TBD — human/project evidence required";
+  return `# PROJECT DELIVERY OBLIGATIONS\n\n> GENERATED ARTIFACT. Canonical acceptance authority: Blank Document 05. This file records what this concrete deployment must prove; it is not a capability catalogue.\n\n## Backup / Restore / Disaster Recovery\n- Mechanism: ${q(/Backup \/ Restore \/ DR Obligation.*Backup Mechanism/i)}\n- Retention: ${q(/Backup \/ Restore \/ DR Obligation.*Retention/i)}\n- Restore procedure: ${q(/Backup \/ Restore \/ DR Obligation.*Restore Procedure/i)}\n- Restore-test cadence: ${q(/Backup \/ Restore \/ DR Obligation.*Restore Test Cadence/i)}\n- RPO: ${q(/Backup \/ Restore \/ DR Obligation.*RPO/i)}\n- RTO: ${q(/Backup \/ Restore \/ DR Obligation.*RTO/i)}\n- Evidence: ${q(/Backup \/ Restore \/ DR Obligation.*Evidence Location/i)}\n\n## Health / Readiness / Graceful Failure\n- Liveness: ${q(/Health \/ Readiness.*Liveness Endpoint/i)}\n- Readiness: ${q(/Health \/ Readiness.*Readiness Endpoint/i)}\n- Degraded dependency policy: ${q(/Health \/ Readiness.*Degraded Dependency Policy/i)}\n- Graceful shutdown: ${q(/Queue and Workers.*Graceful Shutdown|Maintenance.*Connection Draining/i)}\n\n## Rate Limiting / Abuse\n- Public assessment: ${q(/Rate Limit \/ Abuse Delivery Obligation.*Public Endpoint Assessment/i)}\n- Authenticated assessment: ${q(/Rate Limit \/ Abuse Delivery Obligation.*Authenticated Endpoint Assessment/i)}\n- Admin/expensive assessment: ${q(/Rate Limit \/ Abuse Delivery Obligation.*Admin \/ Expensive Operation Assessment/i)}\n- Policy: ${q(/Rate Limit \/ Abuse Delivery Obligation.*Limit Policy/i)}\n- Evidence: ${q(/Rate Limit \/ Abuse Delivery Obligation.*Evidence Location/i)}\n\n## Data Lifecycle\n- Data classes: ${q(/Data Lifecycle Delivery Obligation.*Data Class Inventory/i)}\n- Retention: ${q(/Data Lifecycle Delivery Obligation.*Retention Policy/i)}\n- Delete/anonymize: ${q(/Data Lifecycle Delivery Obligation.*Deletion \/ Anonymisation Policy/i)}\n- Export: ${q(/Data Lifecycle Delivery Obligation.*Export Policy/i)}\n- Backup/archive treatment: ${q(/Data Lifecycle Delivery Obligation.*Backup \/ Archive Treatment/i)}\n\n## Operational Resilience\n- Dependencies: ${q(/Operational Resilience Obligation.*Critical Dependency Inventory/i)}\n- Timeout policy: ${q(/Operational Resilience Obligation.*Timeout Policy/i)}\n- Retry policy: ${q(/Operational Resilience Obligation.*Retry Policy/i)}\n- Idempotency policy: ${q(/Operational Resilience Obligation.*Idempotency Policy/i)}\n- Degradation/failure containment: ${q(/Operational Resilience Obligation.*Degradation \/ Circuit Breaker Policy/i)}\n- Evidence: ${q(/Operational Resilience Obligation.*Failure Containment Evidence/i)}\n\n## Verification / Capacity / Production Operation\n- Test frameworks: ${q(/Test Frameworks.*Unit Test Framework/i)} / ${q(/Test Frameworks.*Integration Test Framework/i)} / ${q(/Test Frameworks.*E2E Framework/i)}\n- Test-impact policy: ${q(/Test Impact and Flaky Policy.*Affected-Test Selection/i)}\n- Performance targets: ${q(/Performance and Capacity Obligation.*Performance Targets/i)}\n- Resource/cost guardrails: ${q(/Performance and Capacity Obligation.*Resource \/ Cost Guardrails/i)}\n- Production restrictions: ${q(/Test \/ Staging \/ Production Environments.*Production Restrictions/i)}\n- Deployment recovery: ${q(/CD and Deployment.*Rollback \/ Recovery/i)}\n\n## Release Rule\nEach applicable obligation must have evidence, or be explicitly NOT APPLICABLE with rationale. A missing reusable mechanism is a Toolbox Gap and requires user decision before new reusable infrastructure is created.\n`;
+}
+
+function genCostReview(){
+  const t=technologyFacts();
+  const optionalMarkers=[
+    ["Kubernetes",/kubernetes/i],["Kafka",/kafka/i],["Service mesh",/service mesh|istio|linkerd/i],
+    ["Event sourcing",/event sourcing/i],["CQRS",/\bcqrs\b/i],["Multi-region active/active",/active.?active/i]
+  ];
+  const joined=Object.values(state.answers).join("\n")+" "+Object.values(t).join("\n");
+  const flags=optionalMarkers.filter(([,r])=>r.test(joined)).map(([n])=>n);
+  const unanswered=state.sections.filter(s=>s.kind==="mandatory"&&!sectionAnswered(s));
+  return `# AI COST AND PRACTICALITY REVIEW
+## Derived Implementation Snapshot
+
+> GENERATED ARTIFACT. This is an advisory report derived from the completed/partially-completed Document 06. It is not canonical architecture.
+
+## Current Snapshot
+
+- Decision sections: ${state.sections.length}
+- Mandatory sections currently untouched: ${unanswered.length}
+- Potential high-complexity technologies detected: ${flags.length?flags.join(", "):"none detected by simple heuristic"}
+
+## Agent-Cost Rules
+
+- Start from \`AGENTS.md\`; do not preload Documents 00–07.
+- Route via \`PROJECT_AGENT_CONTEXT_MAP.yaml\`.
+- Prefer stable contracts over implementation inspection.
+- Run affected tests first; broaden according to risk and release stage.
+- Do not use multiple agents to independently reconsider an approved technology decision without a documented trigger.
+- Do not regenerate canonical documents merely because implementation code changed.
+- Keep derived technology facts in \`PROJECT_TECHNOLOGY_PROFILE.yaml\` rather than making agents mine Document 06 repeatedly.
+
+## Review Flags
+
+${unanswered.length ? "Mandatory decisions still require completion before the technology plan can be considered complete." : "No untouched mandatory decision sections were detected by the questionnaire heuristic."}
+${flags.length ? "\nDetected complexity deserves explicit justification and ADR evidence: "+flags.join(", ")+"." : "\nNo obvious premature-complexity marker was detected in entered values."}
+
+## Reminder
+
+This report uses simple deterministic heuristics. It does not replace architectural, security, performance or cost review.
+`;
+}
+
+
+function savePartialProjectSpec(){
+  const md=generateCompletedDoc();
+  downloadText("PROJECT_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION.partial.md",md);
+  toast("Partial project Document 06 saved. The Blank framework template was not changed.");
+}
+
+function genRootAgentShim(){
+  return `# AGENTS.md
+
+This project uses the Blank Platform generated agent profile.
+
+Read:
+
+\`blank/project/PROJECT_AGENTS.md\`
+
+Then use:
+
+\`blank/project/PROJECT_AGENT_CONTEXT_MAP.yaml\`
+
+IF Superpowers is active, follow Blank Document 08 cooperation rules; otherwise use native Blank. Do not preload the full framework unless triggered. Mature contracts/toolbox entries are immutable by default; Toolbox Gaps require user approval.
+`;
+}
+
+function genBootstrapManifest(){
+  const now=new Date().toISOString();
+  const sourceLines=REQUIRED_FRAMEWORK_FILES.map(name=>{
+    const f=state.sourceFiles[name];
+    return `  - name: ${yamlQuote(name)}
+    size_bytes: ${f ? f.size : 0}
+    source_fingerprint: ${yamlQuote(f ? simpleHash(name+":"+f.size+":"+(f.lastModified||0)) : "missing")}`;
+  }).join("\n");
+  const generatedNames=Object.keys(state.outputs).filter(n=>n!=="PROJECT_BOOTSTRAP_MANIFEST.yaml");
+  const outputLines=generatedNames.map(name=>{
+    const install=name==="AGENTS.md" ? "project-root/AGENTS.md" : `project-root/blank/project/${name}`;
+    return `  - generated: ${yamlQuote(name)}
+    install_as: ${yamlQuote(install)}
+    authoritative: ${name==="PROJECT_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION.md" ? "true" : "false"}`;
+  }).join("\n");
+  return `generator:
+  name: "Blank Platform Technology Configurator"
+  version: ${yamlQuote(GENERATOR_VERSION)}
+  generated_at: ${yamlQuote(now)}
+source_framework_folder: ${yamlQuote(state.sourceFolderName||"selected folder")}
+source_documents:
+${sourceLines}
+output_group: "BLANK_PROJECT_BOOTSTRAP"
+installation:
+  canonical_framework_docs: "project-root/blank/framework/"
+  generated_project_docs: "project-root/blank/project/"
+  root_agent_shim: "project-root/AGENTS.md"
+generated_files:
+${outputLines}
+rules:
+  - "00..08 and 06A are canonical Blank framework source documents."
+  - "PROJECT_* files are generated implementation-specific artifacts."
+  - "AGENTS.md is a tiny root-level discovery shim."
+  - "Regenerate PROJECT_* after material Document 06 or repository-layout changes."
+`;
+}
+
+function generateOutputs(){
+  const completed=generateCompletedDoc();
+  const files={
+    "PROJECT_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION.md":completed,
+    "PROJECT_AGENTS.md":genAgents(),
+    "PROJECT_AGENT_CONTEXT_MAP.yaml":genContextMap(),
+    "PROJECT_TECHNOLOGY_PROFILE.yaml":genTechnologyProfile(),
+    "PROJECT_DEVELOPMENT_COMMANDS.md":genCommands(),
+    "PROJECT_ENVIRONMENT_MATRIX.yaml":genEnvironmentMatrix(),
+    "PROJECT_PLATFORM_CAPABILITY_REGISTRY.yaml":genCapabilityRegistry(),
+    "PROJECT_TOOLBOX_REGISTRY.yaml":genToolboxRegistry(),
+    "PROJECT_TOOLBOX_POLICY.md":genToolboxPolicy(),
+    "PROJECT_DELIVERY_OBLIGATIONS.md":genDeliveryObligations(),
+    "PROJECT_AI_COST_AND_PRACTICALITY_REVIEW.md":genCostReview(),
+    "AGENTS.md":genRootAgentShim()
+  };
+  state.outputs=files;
+  state.outputs["PROJECT_BOOTSTRAP_MANIFEST.yaml"]=genBootstrapManifest();
+  renderOutputs();
+  $("downloadAll").disabled=false;
+  $("writeFolder").disabled=!state.outputHandle;
+  toast("Project bootstrap outputs generated.");
+}
+function renderOutputs(){
+  const wrap=$("outputs"); wrap.innerHTML="";
+  for(const [name,text] of Object.entries(state.outputs)){
+    const d=document.createElement("div"); d.className="output-item";
+    d.innerHTML=`<strong>${esc(name)}</strong><span class="small muted">${Math.round(text.length/1024)} KB</span><div class="toolbar" style="margin-top:8px"></div>`;
+    const btn=document.createElement("button"); btn.textContent="Download";
+    btn.addEventListener("click",()=>downloadText(name,text));
+    d.querySelector(".toolbar").appendChild(btn); wrap.appendChild(d);
+  }
+}
+
+function downloadText(name,text){
+  const blob=new Blob([text],{type:name.endsWith(".yaml")?"text/yaml;charset=utf-8":"text/markdown;charset=utf-8"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
+}
+
+// Minimal uncompressed ZIP writer for a true single-file offline app.
+const crcTable=(()=>{let t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?0xedb88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+function crc32(bytes){let c=0xffffffff;for(const b of bytes)c=crcTable[(c^b)&255]^(c>>>8);return (c^0xffffffff)>>>0;}
+function u16(n){return [n&255,(n>>>8)&255]}
+function u32(n){return [n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255]}
+function makeZip(fileMap){
+  const enc=new TextEncoder(), locals=[], centrals=[]; let offset=0, count=0;
+  for(const [name,text] of Object.entries(fileMap)){
+    const nb=enc.encode(name), data=enc.encode(text), crc=crc32(data), size=data.length;
+    const local=new Uint8Array([
+      ...u32(0x04034b50),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),
+      ...u32(crc),...u32(size),...u32(size),...u16(nb.length),...u16(0),...nb,...data
+    ]);
+    locals.push(local);
+    const central=new Uint8Array([
+      ...u32(0x02014b50),...u16(20),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),
+      ...u32(crc),...u32(size),...u32(size),...u16(nb.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(offset),...nb
+    ]);
+    centrals.push(central); offset+=local.length; count++;
+  }
+  const centralSize=centrals.reduce((n,a)=>n+a.length,0);
+  const end=new Uint8Array([...u32(0x06054b50),...u16(0),...u16(0),...u16(count),...u16(count),...u32(centralSize),...u32(offset),...u16(0)]);
+  return new Blob([...locals,...centrals,end],{type:"application/zip"});
+}
+function downloadZip(){
+  if(!Object.keys(state.outputs).length) generateOutputs();
+  const grouped={};
+  for(const [name,text] of Object.entries(state.outputs)) grouped[`BLANK_PROJECT_BOOTSTRAP/${name}`]=text;
+  const blob=makeZip(grouped), a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download="BLANK_PROJECT_BOOTSTRAP.zip";
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
+}
+
+
+async function fileExists(dir,name){
+  try{ await dir.getFileHandle(name,{create:false}); return true; }catch(e){ return false; }
+}
+async function writeOutputsToFolder(){
+  if(!state.outputHandle) return toast("Choose an output folder first.");
+  if(!Object.keys(state.outputs).length) generateOutputs();
+  try{
+    const bundleDir=await state.outputHandle.getDirectoryHandle("BLANK_PROJECT_BOOTSTRAP",{create:true});
+    const collisions=[];
+    for(const name of Object.keys(state.outputs)) if(await fileExists(bundleDir,name)) collisions.push(name);
+    if(collisions.length){
+      const ok=confirm(`${collisions.length} generated file(s) already exist in BLANK_PROJECT_BOOTSTRAP.\n\nReplace those generated files with the newly generated versions?\n\nNo non-generated files will be touched.`);
+      if(!ok) return;
+    }
+    for(const [name,text] of Object.entries(state.outputs)){
+      const fh=await bundleDir.getFileHandle(name,{create:true});
+      const w=await fh.createWritable();
+      await w.write(text); await w.close();
+    }
+    toast(`Wrote ${Object.keys(state.outputs).length} exact files into BLANK_PROJECT_BOOTSTRAP.`);
+  }catch(e){
+    toast("Could not write output folder. Use ZIP download instead.");
+  }
+}
+
+function saveLocal(){
+  const payload={fingerprint:simpleHash(state.doc06Text),answers:state.answers,bootstrap:state.bootstrap};
+  localStorage.setItem("blank-platform-configurator",JSON.stringify(payload));toast("Answers saved in this browser.");
+}
+function restoreLocal(){
+  try{
+    const p=JSON.parse(localStorage.getItem("blank-platform-configurator")||"null");
+    if(!p) return toast("No local save found.");
+    if(p.fingerprint!==simpleHash(state.doc06Text) && !confirm("The saved answers came from a different Document 06 revision. Restore them anyway?")) return;
+    Object.assign(state.answers,p.answers||{});Object.assign(state.bootstrap,p.bootstrap||{});
+    document.querySelectorAll("[data-answer]").forEach(el=>{if(state.answers[el.dataset.answer]!==undefined)el.value=state.answers[el.dataset.answer];});
+    renderBootstrap();updateProgress();toast("Local answers restored.");
+  }catch(e){toast("Could not restore local save.");}
+}
+function simpleHash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(16);}
+
+function resetAnswers(){
+  if(!confirm("Clear all questionnaire answers and bootstrap values in this page? The loaded documents will remain.")) return;
+  state.answers={}; state.bootstrap={}; state.answerMeta={}; state.baselineApplied=false;
+  state.sections.forEach(sec=>sec.blocks.forEach((b,bi)=>b.fields.forEach((f,fi)=>state.answers[makeKey(sec,bi,fi)]="")));
+  document.querySelectorAll("[data-answer]").forEach(el=>el.value="");
+  renderBootstrap();refreshGhostSuggestions();updateProgress();state.outputs={};renderOutputs();$("downloadAll").disabled=true;toast("Answers cleared.");
+}
+
+function toggleTheme(){
+  const light=document.documentElement.dataset.theme==="light";
+  document.documentElement.dataset.theme=light?"dark":"light";
+  if(!light){
+    document.documentElement.style.setProperty("--bg","#eceff2");document.documentElement.style.setProperty("--panel","#f7f8fa");
+    document.documentElement.style.setProperty("--panel2","#e3e7ec");document.documentElement.style.setProperty("--panel3","#d8dde3");
+    document.documentElement.style.setProperty("--text","#24282e");document.documentElement.style.setProperty("--muted","#626b76");
+    document.documentElement.style.setProperty("--soft","#38404a");document.documentElement.style.setProperty("--line","#c7cdd4");
+    $("themeBtn").textContent="Light";
+  }else{
+    ["--bg","--panel","--panel2","--panel3","--text","--muted","--soft","--line"].forEach(p=>document.documentElement.style.removeProperty(p));
+    $("themeBtn").textContent="Dark";
+  }
+}
+
+
+
+
+
+$("preferredFrameworkPath").textContent=PREFERRED_FRAMEWORK_PATH;
+autoLoadRememberedFramework();
+
+$("helpModalClose").addEventListener("click",closeHelp);
+$("helpModalBackdrop").addEventListener("click",e=>{ if(e.target===$("helpModalBackdrop")) closeHelp(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !$("helpModalBackdrop").classList.contains("hidden")) closeHelp(); });
+
+
+
+$("applyBaseline").addEventListener("click",applySafeBaseline);
+$("showReviewOnly").addEventListener("click",()=>setReviewMode(true));
+$("showAllAdvanced").addEventListener("click",()=>setReviewMode(false));
+$("reviewModeBtn").addEventListener("click",()=>setReviewMode(true));
+$("advancedModeBtn").addEventListener("click",()=>setReviewMode(false));
+
+$("projectSpecFile").addEventListener("change",async e=>{
+  const f=e.target.files[0];
+  if(f) await loadProjectSpec(f);
+});
+$("clearProjectSpec").addEventListener("click",clearProjectSpec);
+$("savePartial").addEventListener("click",savePartialProjectSpec);
+
+$("chooseFrameworkFolder").addEventListener("click",chooseFrameworkFolder);
+$("frameworkFolderFallback").addEventListener("change",async e=>{
+  const files=[...e.target.files];
+  const top=files[0]?.webkitRelativePath?.split("/")[0]||"selected folder";
+  await loadFrameworkFromFileList(files,top);
+});
+$("buildForm").addEventListener("click",buildQuestionnaire);
+$("search").addEventListener("input",applyFilter);
+$("filter").addEventListener("change",applyFilter);
+$("generate").addEventListener("click",generateOutputs);
+$("downloadAll").addEventListener("click",downloadZip);
+$("chooseOutputFolder").addEventListener("click",chooseOutputFolder);
+$("writeFolder").addEventListener("click",writeOutputsToFolder);
+$("saveLocal").addEventListener("click",saveLocal);
+$("restoreLocal").addEventListener("click",restoreLocal);
+$("resetBtn").addEventListener("click",resetAnswers);
+$("themeBtn").addEventListener("click",toggleTheme);
+
+const frameworkDrop=$("frameworkDrop");
+["dragenter","dragover"].forEach(ev=>frameworkDrop.addEventListener(ev,e=>{e.preventDefault();frameworkDrop.classList.add("drag")}));
+["dragleave","drop"].forEach(ev=>frameworkDrop.addEventListener(ev,e=>{e.preventDefault();frameworkDrop.classList.remove("drag")}));
+frameworkDrop.addEventListener("drop",async e=>{
+  const files=[...e.dataTransfer.files];
+  if(files.length) await loadFrameworkFromFileList(files,"dropped files");
+});
+</script>
+</body>
+</html>

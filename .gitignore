@@ -1,0 +1,36 @@
+# Operating system
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+~*
+
+# Node / JavaScript tooling
+node_modules/
+.next/
+out/
+dist/
+coverage/
+.npm/
+.pnpm-store/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local Blank working/generated material
+PROJECT_*

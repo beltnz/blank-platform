@@ -1,0 +1,71 @@
+version: "0.02.0"
+authority: derived-index
+default_entry: AGENTS.md
+notes:
+  - "Load only material sections; cross-references are locators, not recursive obligations."
+  - "If Superpowers is used, 08 governs cooperation; otherwise 08 supplies the native workflow."
+  - "A toolbox gap is L3 and requires user decision before reusable code is created."
+
+task_routes:
+  architecture_or_new_platform_capability:
+    primary: 01_CANONICAL_PLATFORM_ARCHITECTURE.md
+    secondary: [02_AI_DEVELOPMENT_CONSTITUTION.md, 08_AI_ENGINEERING_OPERATING_MODEL.md]
+    contracts: 03_PLATFORM_CAPABILITY_CONTRACTS.md
+    trigger_security: 04_PLATFORM_SECURITY_MODEL.md
+  routine_capability_change:
+    primary: 03_PLATFORM_CAPABILITY_CONTRACTS.md
+    secondary: [affected_code, affected_tests]
+  toolbox_gap_or_mature_contract_change:
+    primary: 02_AI_DEVELOPMENT_CONSTITUTION.md
+    secondary: [08_AI_ENGINEERING_OPERATING_MODEL.md, TOOLBOX_GAP_DECISION_TEMPLATE.md]
+    user_decision_required: true
+  auth_session_identity:
+    primary: 03_PLATFORM_CAPABILITY_CONTRACTS.md
+    security: 04_PLATFORM_SECURITY_MODEL.md
+    tests: 07_DEVELOPMENT_TEST_DATA_AND_VERIFICATION_MODEL.md
+  authorization_tenancy_privilege:
+    primary: 03_PLATFORM_CAPABILITY_CONTRACTS.md
+    security: 04_PLATFORM_SECURITY_MODEL.md
+    always_high_risk: true
+  persistence_validation_migration:
+    primary: 03_PLATFORM_CAPABILITY_CONTRACTS.md
+    secondary: [07_DEVELOPMENT_TEST_DATA_AND_VERIFICATION_MODEL.md]
+    trigger_security: 04_PLATFORM_SECURITY_MODEL.md
+  jobs_events_idempotency:
+    primary: 03_PLATFORM_CAPABILITY_CONTRACTS.md
+    secondary: [07_DEVELOPMENT_TEST_DATA_AND_VERIFICATION_MODEL.md]
+  files_webhooks_external_input:
+    primary: 03_PLATFORM_CAPABILITY_CONTRACTS.md
+    security: 04_PLATFORM_SECURITY_MODEL.md
+  data_inspector_admin_breakglass:
+    primary: 04_PLATFORM_SECURITY_MODEL.md
+    secondary: [03_PLATFORM_CAPABILITY_CONTRACTS.md, 07_DEVELOPMENT_TEST_DATA_AND_VERIFICATION_MODEL.md]
+    always_high_risk: true
+  development_test_data:
+    primary: 07_DEVELOPMENT_TEST_DATA_AND_VERIFICATION_MODEL.md
+    trigger_security: 04_PLATFORM_SECURITY_MODEL.md
+  technology_selection:
+    primary: 06_TECHNOLOGY_IMPLEMENTATION_SPECIFICATION_TEMPLATE.md
+    procedure: 06A_TECHNOLOGY_IMPLEMENTATION_RECIPE.md
+    secondary: [01_CANONICAL_PLATFORM_ARCHITECTURE.md]
+  release_or_delivery_obligation:
+    primary: 05_BLANK_PLATFORM_DEFINITION_OF_DONE.md
+    secondary: [04_PLATFORM_SECURITY_MODEL.md, 07_DEVELOPMENT_TEST_DATA_AND_VERIFICATION_MODEL.md]
+  workflow_model_cost_superpowers:
+    primary: 08_AI_ENGINEERING_OPERATING_MODEL.md
+  documentation_only:
+    primary: affected_document
+
+context_expansion_triggers:
+  - "missing or ambiguous contract"
+  - "L2/L3 decision"
+  - "new/changed security or trust boundary"
+  - "cross-capability public contract impact"
+  - "persistence/deployment/recovery compatibility change"
+  - "unexpected dependency discovered by tests"
+
+never_default_load:
+  - 00_BLANK_PLATFORM_MANIFESTO.md
+  - "all canonical documents"
+  - "all implementation files"
+  - "all tests"
